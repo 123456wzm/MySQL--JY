@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySQL 数据库实训 · 互动讲义</title>
+<style>
+:root{
+  --bg:#0a0e1c; --bg2:#0f1526; --card:rgba(255,255,255,.045); --card2:rgba(255,255,255,.07);
+  --line:rgba(255,255,255,.10); --txt:#dce3f2; --txt2:#9aa7c2; --head:#f4f7ff;
+  --cy:#4dd8e8; --pu:#a78bfa; --or:#ffb86b; --gr:#67e8a5; --rd:#ff7a8a;
+  --code:#0b1120; --shadow:0 18px 50px rgba(0,0,0,.45);
+}
+[data-theme="light"]{
+  --bg:#f4f7fc; --bg2:#ffffff; --card:rgba(20,40,90,.035); --card2:rgba(20,40,90,.06);
+  --line:rgba(20,40,90,.13); --txt:#2a3550; --txt2:#5c6b8a; --head:#101a33;
+  --cy:#0b8fa8; --pu:#7048d6; --or:#c46a10; --gr:#0f8a55; --rd:#c8324a;
+  --code:#101a30; --shadow:0 14px 36px rgba(30,50,90,.13);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.85;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+   radial-gradient(700px 420px at 12% 4%,rgba(77,216,232,.13),transparent 65%),
+   radial-gradient(620px 460px at 88% 22%,rgba(167,139,250,.13),transparent 65%),
+   radial-gradient(700px 500px at 50% 96%,rgba(255,184,107,.08),transparent 65%);}
+[data-theme="light"] body::before{opacity:.55}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.16;
+  background-image:linear-gradient(rgba(150,180,255,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(150,180,255,.18) 1px,transparent 1px);
+  background-size:52px 52px;mask-image:linear-gradient(to bottom,#000,transparent 80%)}
+.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* ---------- 顶部 ---------- */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:99;background:linear-gradient(90deg,var(--cy),var(--pu),var(--or));box-shadow:0 0 14px var(--cy)}
+.topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px);background:color-mix(in srgb,var(--bg) 82%,transparent);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:58px}
+.brand{font-weight:800;color:var(--head);white-space:nowrap;font-size:15px;letter-spacing:.3px}
+.brand i{font-style:normal;color:var(--cy)}
+.nav{display:flex;gap:6px;overflow-x:auto;flex:1;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{color:var(--txt2);text-decoration:none;font-size:12.5px;white-space:nowrap;padding:5px 10px;border-radius:20px;border:1px solid transparent;transition:.25s}
+.nav a:hover,.nav a.on{color:var(--cy);border-color:var(--cy);background:color-mix(in srgb,var(--cy) 9%,transparent)}
+.tbtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:15px;flex-shrink:0;transition:.3s}
+.tbtn:hover{transform:rotate(25deg);border-color:var(--pu)}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;padding:76px 0 58px;min-height:min(88vh,760px);display:flex;align-items:center}
+.hero-in{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;width:100%}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:2px;color:var(--cy);border:1px solid color-mix(in srgb,var(--cy) 40%,transparent);padding:5px 14px;border-radius:30px;background:color-mix(in srgb,var(--cy) 8%,transparent)}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--cy);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(77,216,232,.6)}50%{box-shadow:0 0 0 9px rgba(77,216,232,0)}}
+h1{font-size:clamp(32px,5.4vw,58px);line-height:1.22;color:var(--head);margin:20px 0 16px;letter-spacing:-1px}
+h1 span{background:linear-gradient(100deg,var(--cy),var(--pu) 55%,var(--or));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.sub{font-size:16px;color:var(--txt2);max-width:520px;margin:0 0 26px}
+.badges{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:30px}
+.badge{font-size:12px;padding:6px 13px;border-radius:8px;background:var(--card);border:1px solid var(--line);color:var(--txt2)}
+.badge b{color:var(--cy)}
+.cta{display:inline-flex;align-items:center;gap:10px;padding:13px 26px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;
+  background:linear-gradient(100deg,var(--cy),var(--pu));color:#07121f;box-shadow:0 10px 30px rgba(77,216,232,.25);transition:.3s}
+.cta:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(167,139,250,.35)}
+.cta.ghost{background:transparent;color:var(--txt);border:1px solid var(--line);box-shadow:none;margin-left:10px}
+.cta.ghost:hover{border-color:var(--cy);color:var(--cy)}
+.hero-art{position:relative;height:420px}
+.flow-svg{width:100%;height:100%;overflow:visible}
+.fnode{opacity:0;transform:translateY(14px);animation:nodeIn .7s forwards}
+.fnode.float{animation:nodeIn .7s forwards, float 4s ease-in-out 1s infinite}
+@keyframes nodeIn{to{opacity:1;transform:translateY(0)}}
+.fline{fill:none;stroke:url(#lg);stroke-width:2.5;stroke-dasharray:220;stroke-dashoffset:220;animation:draw 1.5s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.float{animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.spark{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--cy);filter:blur(1px);animation:spark 3.2s linear infinite}
+@keyframes spark{from{transform:translate(0,0);opacity:0}20%{opacity:1}to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--txt2);letter-spacing:2px;animation:float 2.4s ease-in-out infinite}
+
+/* ---------- 通用区块 ---------- */
+section{padding:66px 0 20px;scroll-margin-top:70px}
+.sec-head{margin-bottom:30px}
+.sec-no{font-size:12px;letter-spacing:3px;color:var(--pu);font-weight:800}
+h2{font-size:clamp(24px,3.4vw,36px);color:var(--head);margin:8px 0 10px;letter-spacing:-.5px}
+.sec-head p{color:var(--txt2);margin:0;max-width:760px;font-size:14.5px}
+h3{color:var(--head);font-size:19px;margin:30px 0 12px;display:flex;align-items:center;gap:9px}
+h3::before{content:"";width:4px;height:19px;border-radius:3px;background:linear-gradient(var(--cy),var(--pu))}
+h4{color:var(--cy);font-size:15px;margin:20px 0 8px}
+p{margin:10px 0}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .75s cubic-bezier(.2,.7,.2,1),transform .75s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;transition:.35s;position:relative;overflow:hidden}
+.card:hover{border-color:color-mix(in srgb,var(--cy) 45%,transparent);background:var(--card2);transform:translateY(-4px);box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:860px){.hero-in{grid-template-columns:1fr}.hero-art{height:280px;order:-1}.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}.hero{padding-top:40px}.card{padding:17px}}
+.tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid var(--line);color:var(--txt2);margin:0 5px 5px 0}
+.tag.cy{color:var(--cy);border-color:color-mix(in srgb,var(--cy) 40%,transparent);background:color-mix(in srgb,var(--cy) 8%,transparent)}
+.tag.pu{color:var(--pu);border-color:color-mix(in srgb,var(--pu) 40%,transparent);background:color-mix(in srgb,var(--pu) 8%,transparent)}
+.tag.or{color:var(--or);border-color:color-mix(in srgb,var(--or) 40%,transparent);background:color-mix(in srgb,var(--or) 8%,transparent)}
+.tag.gr{color:var(--gr);border-color:color-mix(in srgb,var(--gr) 40%,transparent);background:color-mix(in srgb,var(--gr) 8%,transparent)}
+.tag.rd{color:var(--rd);border-color:color-mix(in srgb,var(--rd) 40%,transparent);background:color-mix(in srgb,var(--rd) 8%,transparent)}
+strong{color:var(--head)}
+em{color:var(--or);font-style:normal}
+.k{color:var(--cy);font-weight:700}
+.note{border-left:3px solid var(--or);background:color-mix(in srgb,var(--or) 8%,transparent);padding:13px 17px;border-radius:0 12px 12px 0;margin:16px 0;font-size:14px}
+.note.cy{border-color:var(--cy);background:color-mix(in srgb,var(--cy) 8%,transparent)}
+.note.rd{border-color:var(--rd);background:color-mix(in srgb,var(--rd) 8%,transparent)}
+.note b{color:var(--head)}
+.btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:9px 16px;border-radius:10px;cursor:pointer;font-size:13px;transition:.25s;font-family:inherit}
+.btn:hover{border-color:var(--cy);color:var(--cy);transform:translateY(-2px)}
+.btn.on{background:linear-gradient(100deg,var(--cy),var(--pu));color:#07121f;border-color:transparent;font-weight:700}
+.btn-row{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}
+.mini{font-size:12.5px;color:var(--txt2)}
+
+/* ---------- 表格 ---------- */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:14px 0;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:430px}
+th{background:color-mix(in srgb,var(--cy) 12%,transparent);color:var(--head);text-align:left;padding:10px 13px;font-weight:700;white-space:nowrap;border-bottom:1px solid var(--line)}
+td{padding:9px 13px;border-bottom:1px solid var(--line);color:var(--txt)}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:.2s}
+tbody tr:hover{background:color-mix(in srgb,var(--cy) 7%,transparent)}
+tr.pop{animation:rowIn .45s both}
+@keyframes rowIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+td.num{font-family:Consolas,monospace;color:var(--or)}
+td.ok{color:var(--gr)}td.no{color:var(--rd)}
+
+/* ---------- 代码 ---------- */
+.code-wrap{position:relative;margin:14px 0}
+.code-wrap pre{background:var(--code);border:1px solid var(--line);border-radius:12px;padding:18px 16px 18px 46px;overflow-x:auto;margin:0;font-size:12.5px;line-height:1.75;color:#c9d6ee;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+.code-wrap pre::before{content:"";position:absolute}
+.code-wrap .ln{position:absolute;left:0;top:18px;width:34px;text-align:right;color:#4a5878;font-size:12px;line-height:1.75;pointer-events:none;font-family:Consolas,monospace;white-space:pre}
+.copy{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#9fb0cf;font-size:11px;padding:4px 10px;border-radius:7px;cursor:pointer;transition:.25s;z-index:2}
+.copy:hover{color:#fff;border-color:var(--cy)}
+.c-kw{color:#7fd1ff;font-weight:600}.c-str{color:#ffc98a}.c-num{color:#c2a5ff}.c-cmt{color:#6c7f9e;font-style:italic}.c-fn{color:#7ee6b8}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0 12px}
+.tab{background:var(--card);border:1px solid var(--line);color:var(--txt2);padding:8px 15px;border-radius:9px;cursor:pointer;font-size:13px;transition:.25s;font-family:inherit}
+.tab:hover{color:var(--cy);border-color:var(--cy)}
+.tab.on{background:linear-gradient(100deg,color-mix(in srgb,var(--cy) 22%,transparent),color-mix(in srgb,var(--pu) 22%,transparent));color:var(--head);border-color:var(--cy);font-weight:700}
+.pane{display:none;animation:fadeUp .5s both}
+.pane.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ---------- 时间轴 ---------- */
+.timeline{position:relative;padding-left:34px;margin:24px 0}
+.timeline::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--cy),var(--pu),var(--or))}
+.tl{position:relative;margin-bottom:20px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 18px;transition:.4s}
+.tl:hover{transform:translateX(6px);border-color:var(--cy)}
+.tl::before{content:"";position:absolute;left:-28px;top:22px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:3px solid var(--cy);box-shadow:0 0 0 4px color-mix(in srgb,var(--cy) 15%,transparent)}
+.tl b{color:var(--head);font-size:15px}
+.tl .step{font-size:11px;color:var(--pu);letter-spacing:2px;font-weight:800}
+
+/* ---------- 翻转卡 ---------- */
+.flip{perspective:1000px;height:152px;cursor:pointer}
+.flip-in{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.flip.flipped .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:14px;border:1px solid var(--line);padding:16px;display:flex;flex-direction:column;justify-content:center;background:var(--card)}
+.face.front{background:linear-gradient(145deg,color-mix(in srgb,var(--pu) 10%,var(--card)),var(--card))}
+.face.back{transform:rotateY(180deg);background:linear-gradient(145deg,color-mix(in srgb,var(--cy) 12%,var(--card)),var(--card));font-size:12.5px;line-height:1.65;overflow:auto}
+.face b{color:var(--head);font-size:14px}
+.face .qnum{font-size:11px;color:var(--or);letter-spacing:2px;margin-bottom:6px}
+.face .tip{font-size:11px;color:var(--txt2);margin-top:8px}
+
+/* ---------- E-R SVG ---------- */
+.er-box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin:14px 0}
+.er-svg{width:100%;height:auto;display:block}
+.er-node{cursor:pointer;opacity:0;transform:translateY(12px);animation:nodeIn .6s forwards}
+.er-node rect,.er-node polygon{transition:.3s;stroke-width:2}
+.er-node:hover rect,.er-node:hover polygon,.er-node.hot rect,.er-node.hot polygon{filter:drop-shadow(0 0 12px var(--cy));stroke:var(--cy)}
+.er-line{fill:none;stroke:var(--txt2);stroke-width:1.8;stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1.6s ease forwards;opacity:.75}
+.er-lbl{fill:var(--or);font-size:13px;font-weight:800}
+.er-txt{fill:var(--head);font-size:14px;font-weight:700}
+.er-attr{fill:var(--txt2);font-size:11px}
+#er-info{border-left:3px solid var(--cy);padding:10px 16px;background:color-mix(in srgb,var(--cy) 7%,transparent);border-radius:0 10px 10px 0;font-size:13.5px;min-height:56px}
+
+/* ---------- 可视化小组件 ---------- */
+.cell{display:inline-flex;align-items:center;justify-content:center;height:30px;min-width:34px;border:1px solid var(--line);border-radius:5px;font-family:Consolas,monospace;font-size:12px;background:var(--card2);color:var(--txt)}
+.cell.pad{color:var(--txt2);background:repeating-linear-gradient(45deg,transparent,transparent 4px,color-mix(in srgb,var(--or) 14%,transparent) 4px,color-mix(in srgb,var(--or) 14%,transparent) 8px)}
+.bar{height:9px;border-radius:6px;background:var(--card2);overflow:hidden;border:1px solid var(--line)}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--pu));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;border:1px solid var(--line);color:var(--txt2);margin:3px 5px 3px 0;transition:.3s}
+.chip.lit{color:var(--gr);border-color:var(--gr);background:color-mix(in srgb,var(--gr) 10%,transparent);transform:scale(1.06)}
+.chip.nullv{color:var(--rd);border-color:var(--rd);animation:shake .5s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.stage{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0;min-height:74px;font-size:13.5px}
+.stage .line{opacity:0;animation:fadeUp .5s forwards;padding:3px 0}
+.stage .line b{color:var(--cy)}
+.big-num{font-size:30px;font-weight:800;color:var(--cy);font-family:Consolas,monospace}
+.flowstep{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:13px;transition:.4s;margin-bottom:8px;opacity:.45}
+.flowstep.on{opacity:1;border-color:var(--cy);background:color-mix(in srgb,var(--cy) 10%,transparent);transform:translateX(8px)}
+.flowstep .n{width:24px;height:24px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--cy);flex-shrink:0}
+.chk{display:flex;align-items:flex-start;gap:11px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer;transition:.3s;font-size:13.5px}
+.chk:hover{border-color:var(--cy)}
+.chk.done{background:color-mix(in srgb,var(--gr) 8%,transparent);border-color:color-mix(in srgb,var(--gr) 45%,transparent)}
+.chk .box{width:19px;height:19px;border-radius:5px;border:2px solid var(--txt2);flex-shrink:0;margin-top:3px;display:grid;place-items:center;font-size:12px;color:#07121f}
+.chk.done .box{background:var(--gr);border-color:var(--gr)}
+.demo-split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.demo-split{grid-template-columns:1fr}}
+.bad,.good{border-radius:12px;padding:15px;border:1px solid var(--line);font-size:13px}
+.bad{border-color:color-mix(in srgb,var(--rd) 45%,transparent);background:color-mix(in srgb,var(--rd) 7%,transparent)}
+.good{border-color:color-mix(in srgb,var(--gr) 45%,transparent);background:color-mix(in srgb,var(--gr) 7%,transparent)}
+.bad h4{color:var(--rd);margin-top:0}.good h4{color:var(--gr);margin-top:0}
+footer{padding:60px 0 40px;text-align:center;color:var(--txt2);font-size:13px;border-top:1px solid var(--line);margin-top:60px}
+#top{position:fixed;right:18px;bottom:22px;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card2);color:var(--txt);cursor:pointer;opacity:0;pointer-events:none;transition:.35s;font-size:17px;z-index:40}
+#top.show{opacity:1;pointer-events:auto}
+#top:hover{border-color:var(--cy);color:var(--cy);transform:translateY(-4px)}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="bg-grid"></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">元宝 <i>·</i> MySQL 互动讲义</div>
+    <nav class="nav" id="nav">
+      <a href="#s0">导览</a><a href="#s1">关系模型</a><a href="#s2">E-R 建模</a>
+      <a href="#s3">转关系模式</a><a href="#s4">关系代数</a><a href="#s5">建库建表</a>
+      <a href="#s6">数据更新</a><a href="#s7">数据查询</a><a href="#s8">讨论题</a>
+      <a href="#s9">排错</a><a href="#s10">复习路径</a>
+    </nav>
+    <button class="tbtn" id="theme" title="切换主题">☾</button>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <div class="wrap hero-in">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> 项目 2 → 项目 5 · 10 页教材全解</div>
+      <h1>从一句需求<br>到<span>一条查询结果</span></h1>
+      <p class="sub">把「每个部门有多名员工」这样一句人话，一路变成 E-R 图、关系模式、MySQL 表，最后查出「比 D02 部门所有人都年长的是谁」。这份讲义把整条路拆开，配动画、能点击、可演算。</p>
+      <div class="badges">
+        <span class="badge"><b>4</b> 个项目</span><span class="badge"><b>50+</b> 个实训任务</span>
+        <span class="badge"><b>5</b> 张数据表</span><span class="badge"><b>12</b> 道讨论题</span>
+        <span class="badge"><b>6</b> 道关系代数题</span>
+      </div>
+      <a class="cta" href="#s0">开始探索 <span>→</span></a>
+      <a class="cta ghost" href="#s4">直接看演算台</a>
+    </div>
+    <div class="hero-art">
+      <svg class="flow-svg" viewBox="0 0 440 420">
+        <defs>
+          <linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="30" y1="20" x2="420" y2="390"><stop offset="0" stop-color="#4dd8e8"/><stop offset=".55" stop-color="#a78bfa"/><stop offset="1" stop-color="#ffb86b"/></linearGradient>
+          <linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(77,216,232,.18)"/><stop offset="1" stop-color="rgba(167,139,250,.18)"/></linearGradient>
+        </defs>
+        <g class="fnode" style="animation-delay:.1s"><rect x="30" y="26" width="164" height="66" rx="14" fill="url(#fg)" stroke="#4dd8e8" stroke-width="1.6"/><text x="112" y="52" fill="#f4f7ff" font-size="14" font-weight="700" text-anchor="middle">现实业务</text><text x="112" y="74" fill="#9aa7c2" font-size="11" text-anchor="middle">部门 / 员工 / 商品 / 厂家</text></g>
+        <path class="fline" style="animation-delay:.45s" d="M112 92 C112 122 112 122 112 140"/>
+        <g class="fnode float" style="animation-delay:.5s"><rect x="30" y="140" width="164" height="66" rx="14" fill="url(#fg)" stroke="#a78bfa" stroke-width="1.6"/><text x="112" y="166" fill="#f4f7ff" font-size="14" font-weight="700" text-anchor="middle">E-R 图</text><text x="112" y="188" fill="#9aa7c2" font-size="11" text-anchor="middle">矩形 · 椭圆 · 菱形 · 1:n / m:n</text></g>
+        <path class="fline" style="animation-delay:.8s" d="M194 173 C250 173 250 76 264 76"/>
+        <g class="fnode" style="animation-delay:.9s"><rect x="264" y="26" width="150" height="66" rx="14" fill="url(#fg)" stroke="#ffb86b" stroke-width="1.6"/><text x="339" y="52" fill="#f4f7ff" font-size="14" font-weight="700" text-anchor="middle">关系模式</text><text x="339" y="74" fill="#9aa7c2" font-size="11" text-anchor="middle">PK / FK · σ π ⋈ ÷</text></g>
+        <path class="fline" style="animation-delay:1.1s" d="M339 92 C339 130 339 140 339 158"/>
+        <g class="fnode float" style="animation-delay:1.2s"><rect x="250" y="158" width="178" height="72" rx="14" fill="url(#fg)" stroke="#4dd8e8" stroke-width="1.6"/><text x="339" y="185" fill="#f4f7ff" font-size="14" font-weight="700" text-anchor="middle">MySQL 表</text><text x="339" y="208" fill="#9aa7c2" font-size="11" text-anchor="middle">CHAR / DECIMAL / FOREIGN KEY</text></g>
+        <path class="fline" style="animation-delay:1.45s" d="M300 230 C260 268 220 274 200 290"/>
+        <g class="fnode" style="animation-delay:1.55s"><rect x="30" y="290" width="170" height="72" rx="14" fill="url(#fg)" stroke="#a78bfa" stroke-width="1.6"/><text x="115" y="317" fill="#f4f7ff" font-size="14" font-weight="700" text-anchor="middle">INSERT / UPDATE</text><text x="115" y="340" fill="#9aa7c2" font-size="11" text-anchor="middle">13 职工 · 12 商品 · 20 销售</text></g>
+        <path class="fline" style="animation-delay:1.8s" d="M200 326 C240 326 250 326 258 326"/>
+        <g class="fnode float" style="animation-delay:1.9s"><rect x="258" y="290" width="164" height="72" rx="14" fill="url(#fg)" stroke="#ffb86b" stroke-width="1.6"/><text x="340" y="317" fill="#f4f7ff" font-size="14" font-weight="700" text-anchor="middle">SELECT</text><text x="340" y="340" fill="#9aa7c2" font-size="11" text-anchor="middle">JOIN · GROUP BY · NOT EXISTS</text></g>
+        <text x="220" y="398" fill="#9aa7c2" font-size="11" text-anchor="middle" letter-spacing="2">现实世界 → 概念 → 逻辑 → 物理 → 数据 → 答案</text>
+      </svg>
+      <span class="spark" style="left:18%;top:30%;--dx:60px;--dy:120px"></span>
+      <span class="spark" style="left:70%;top:18%;--dx:-70px;--dy:140px;animation-delay:1.1s"></span>
+      <span class="spark" style="left:52%;top:72%;--dx:90px;--dy:-110px;animation-delay:2s"></span>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ 向下滚动</div>
+</div>
+
+<div class="wrap">
+
+<!-- ============ 0 导览 ============ -->
+<section id="s0">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 00</div><h2>先看地图：这 10 页其实是一条流水线</h2>
+  <p>教材把「需求分析 → 概念模型 → 逻辑模型 → 物理实现 → 数据操作 → 数据查询」拆成 4 个项目。它们不是 4 份独立作业，而是同一套 YGGL 数据库的四次「加工」。</p></div>
+
+  <div class="timeline reveal">
+    <div class="tl"><span class="step">STEP 01 · P61–62</span><br><b>项目 2：把人话变成数学</b><div class="mini">读需求 → 找实体属性 → 判 1:n / m:n → 画 E-R 图 → 转成 5 个关系模式 → 用关系代数算结果、写表达式。</div></div>
+    <div class="tl"><span class="step">STEP 02 · P97–98</span><br><b>项目 3：把关系模式变成表</b><div class="mini">CREATE DATABASE YGGL → 5 张 CREATE TABLE → 设主键、外键、UNIQUE、DEFAULT、UNSIGNED → 用 ALTER 改结构。</div></div>
+    <div class="tl"><span class="step">STEP 03 · P119–121</span><br><b>项目 4：把表变成数据</b><div class="mini">按「先父表后子表」插入 4+6+13+12+20 条记录 → 复制副本表 → UPDATE 批量改 → DELETE / TRUNCATE 删。</div></div>
+    <div class="tl"><span class="step">STEP 04 · P179–181</span><br><b>项目 5：把数据变成答案</b><div class="mini">单表筛选 → 聚合分组 → 多表连接 → 自连接 → 子查询 / 双重 NOT EXISTS / ALL。14 个查询任务把前面所有知识串起来。</div></div>
+  </div>
+
+  <h3 class="reveal">⚠️ 先分清三套数据口径（90% 的报错都源于此）</h3>
+  <p class="reveal">10 页里出现了三套<strong>长得很像但字段名不同</strong>的模式。写 SQL 前先确认题目用哪一套，点下面的按钮切换：</p>
+  <div class="tabs reveal" id="modeTabs">
+    <button class="tab on" data-m="A">A · 概念模式</button>
+    <button class="tab" data-m="B">B · 简化关系模式</button>
+    <button class="tab" data-m="C">C · YGGL 物理模式</button>
+  </div>
+  <div class="card reveal" id="modePane" style="min-height:170px"></div>
+
+  <div class="grid g2 reveal" style="margin-top:16px">
+    <div class="note rd"><b>字段名陷阱</b><br>在 C 口径里，<span class="k">Wage 是年龄</span>（INT），<span class="k">Sal 才是基本工资</span>（DECIMAL(6,1)）；Wjob 是职务，Wtel 是手机号；Goods.Num 是库存数量，Sale.Snum 是销售数量。把 Wage 当工资，所有统计题全错。</div>
+    <div class="note"><b>数据版本陷阱</b><br>图 4-9 中 W005 周雨嫣属于 <span class="k">D01</span>，图 5-44 中同一人写成 <span class="k">D03</span>。做项目 4 按图 4-9，做项目 5 按图 5-44，不要混用。</div>
+  </div>
+</section>
+
+<!-- ============ 1 关系模型 ============ -->
+<section id="s1">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 01</div><h2>关系模型：一切都是「一张表」</h2>
+  <p>关系模型的能力来自一个极简的约定：<strong>无论实体还是联系，最后都装进二维表</strong>。理解了这句话，后面的拆表、连接、外键就都顺了。</p></div>
+
+  <h3 class="reveal">先认术语：把表拆成零件</h3>
+  <div class="grid g4 reveal">
+    <div class="card"><span class="tag cy">Relation</span><h4>关系 = 表</h4><div class="mini">整张 Worker 表就是一个关系。它是关系模型<strong>唯一</strong>的数据结构。</div></div>
+    <div class="card"><span class="tag pu">Tuple</span><h4>元组 = 行</h4><div class="mini">「W001 王鹏飞 男 34 职工 6200 …」这一行，代表一个具体的人。</div></div>
+    <div class="card"><span class="tag or">Attribute</span><h4>属性 = 列</h4><div class="mini">Wname、Sal 各有名字与取值域。Wsex 的域只有 {男, 女}。</div></div>
+    <div class="card"><span class="tag gr">Domain</span><h4>域 = 取值集合</h4><div class="mini">列里能填什么。ENUM、UNSIGNED 就是在给域划边界。</div></div>
+    <div class="card"><span class="tag">Degree</span><h4>度 / 目</h4><div class="mini">列数。Worker 是 8 度关系。</div></div>
+    <div class="card"><span class="tag">Cardinality</span><h4>基数</h4><div class="mini">行数。Worker 有 13 个元组。</div></div>
+    <div class="card"><span class="tag cy">Primary Key</span><h4>主键</h4><div class="mini">能唯一认出一行且非空：Wno。像身份证号。</div></div>
+    <div class="card"><span class="tag pu">Foreign Key</span><h4>外键</h4><div class="mini">Worker.Dno 指向 Department.Dno。像门禁卡，卡号必须在总台登记过。</div></div>
+  </div>
+
+  <h3 class="reveal">关系必须守的 6 条规矩</h3>
+  <div class="grid g2 reveal">
+    <div class="card"><b>① 列同质</b><div class="mini">同一列的分量来自同一个域，类型一致。</div></div>
+    <div class="card"><b>② 列名唯一</b><div class="mini">同一表内不重名；<strong>不同表可以同名</strong>——这正是自然连接能自动找到公共列的前提。</div></div>
+    <div class="card"><b>③ 列无序</b><div class="mini">左右顺序不影响语义，π₃,₄ 按下标取列只是书写方便。</div></div>
+    <div class="card"><b>④ 行无序</b><div class="mini">没有「第 3 行」这种概念，除非 ORDER BY。</div></div>
+    <div class="card"><b>⑤ 元组不重复</b><div class="mini">关系是<strong>集合</strong>。这条直接解释了为什么 π 投影会自动去重：π₃,₄(R) 是 3 行而不是 6 行。</div></div>
+    <div class="card"><b>⑥ 分量原子</b><div class="mini">一个格子只能放一个值（1NF）。这条直接解释了为什么 m:n 联系必须单独建表。</div></div>
+  </div>
+
+  <h3 class="reveal">关系模型的三要素（讨论题 1）</h3>
+  <div class="grid g3 reveal">
+    <div class="card"><span class="tag cy">01</span><h4>数据结构</h4><div class="mini">唯一结构就是二维表。实体用表，联系也用表 → 项目 2 任务 4 把 4 实体 + 1 联系变成 5 张表。</div></div>
+    <div class="card"><span class="tag pu">02</span><h4>数据操作</h4><div class="mini">关系代数 σ π ∪ ∩ − × ⋈ ÷，落地成 SQL 的 DDL / DML / DQL。</div></div>
+    <div class="card"><span class="tag or">03</span><h4>完整性约束</h4><div class="mini">实体、参照、用户定义三类，落地成 PK / FK / UNIQUE / ENUM / UNSIGNED。</div></div>
+  </div>
+  <p class="reveal">三要素缺一不可：<em>只建表不设约束，数据很快就会变成一锅粥；只会约束不会运算，表就只是死档案。</em></p>
+
+  <h3 class="reveal">三类完整性规则（讨论题 2）· 点开看本例</h3>
+  <div class="reveal" id="acc">
+    <div class="card" style="margin-bottom:10px;cursor:pointer" data-acc="1"><b>① 实体完整性</b> <span class="tag cy">点开</span><div class="mini">主键非空且唯一</div><div class="pane" data-acc-p="1" style="margin-top:10px">Worker.Wno 不能重复、不能为 NULL；Department.Dno、Goods.Gno、Factory.Fno 同理。Sale 用联合主键 (Wno, Gno)，<strong>两列都不能空</strong>，且同一「职工 + 商品」组合只能出现一次。<div class="note cy" style="margin-bottom:0">意义：保证每一行都能被唯一认出来，不会出现「两个 W001」。</div></div></div>
+    <div class="card" style="margin-bottom:10px;cursor:pointer" data-acc="2"><b>② 参照完整性</b> <span class="tag pu">点开</span><div class="mini">外键要么为空，要么必须存在</div><div class="pane" data-acc-p="2" style="margin-top:10px">Worker.Dno 只能是 D01~D04 或 NULL，<strong>写 D99 会被拒</strong>；Goods.Fno 只能是 HE01 / TCL2 / XM01 / GL03 / HW04 / MD05；Sale.Wno、Sale.Gno 必须能在父表里找到。<div class="note cy" style="margin-bottom:0">实务影响：它决定了建表顺序（父先子后）和插入顺序。项目 3 任务 2「取消外码约束」正是为了临时绕开这个限制。</div></div></div>
+    <div class="card" style="cursor:pointer" data-acc="3"><b>③ 用户定义完整性</b> <span class="tag or">点开</span><div class="mini">业务自己定的规矩</div><div class="pane" data-acc-p="3" style="margin-top:10px"><span class="tag">Wsex ENUM('男','女')</span><span class="tag">Dname / Fname UNIQUE</span><span class="tag">Price UNSIGNED</span><span class="tag">Num DEFAULT 0</span><span class="tag">Sal DEFAULT 5000</span><span class="tag">NOT NULL</span><div class="mini" style="margin-top:8px">分别对应：性别二选一、名称不许重名、单价不能为负、数量不填按 0、工资缺省 5000、编号姓名必须有值。</div></div></div>
+  </div>
+
+  <h3 class="reveal">等值连接 vs 自然连接（讨论题 3）</h3>
+  <div class="grid g2 reveal">
+    <div class="card"><b>等值连接</b><div class="mini">显式写 <code>R ⋈<sub>R.C=S.C</sub> S</code>；两列名字可以不同；<strong>结果保留两边所有列</strong>，同名列会重复出现两份。</div></div>
+    <div class="card"><b>自然连接</b><div class="mini">自动找<strong>所有同名属性</strong>做等值连接，不写条件；<strong>公共列只留一份</strong>；没有同名列时退化成笛卡尔积。</div></div>
+  </div>
+  <div class="note reveal"><b>联系</b>：自然连接是等值连接的特例，多加了「自动找同名列 + 去掉重复列」两个动作。本例 R(A,B,C,D) 与 S(C,D,E) 的公共列是 C、D，所以 R ⋈ S 结果是 <strong>5 列</strong>（A,B,C,D,E）而不是 7 列。</div>
+</section>
+
+<!-- ============ 2 E-R ============ -->
+<section id="s2">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 02</div><h2>E-R 建模：把一句人话画成图</h2>
+  <p>诀窍只有一句：<strong>名词 → 实体或属性，动词 → 联系，「每个…有多个…」→ 基数，带数据的动作 → 联系属性</strong>。</p></div>
+
+  <h3 class="reveal">需求逐句拆解</h3>
+  <div class="tbl-wrap reveal"><table>
+    <thead><tr><th>需求原话</th><th>提取结果</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr><td>每个部门有多名员工，每个员工只能属于一个部门</td><td>部门—员工「属于」</td><td class="ok">1 : n</td></tr>
+      <tr><td>每个员工可销售多种商品，每种商品也可被多名员工销售</td><td>员工—商品「销售」</td><td class="ok">m : n</td></tr>
+      <tr><td>厂家可供应多种商品，每一种商品只能有一个厂家供应</td><td>厂家—商品「供应」</td><td class="ok">1 : n</td></tr>
+      <tr><td>员工销售商品有销售数量、时间</td><td>「销售」联系自身的属性</td><td class="no">不能挂到员工或商品上</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="reveal">互动 E-R 图 · 把鼠标放到节点上</h3>
+  <p class="reveal mini">矩形 = 实体，菱形 = 联系，连线旁的数字 = 基数，小椭圆 = 联系属性。节点会依次浮现，连线会「画」出来。</p>
+  <div class="er-box reveal">
+    <svg class="er-svg" viewBox="0 0 820 470" id="erSvg">
+      <defs><linearGradient id="eg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(77,216,232,.20)"/><stop offset="1" stop-color="rgba(167,139,250,.16)"/></linearGradient></defs>
+      <!-- 连线 -->
+      <path class="er-line" style="animation-delay:.2s" d="M218 92 H300"/>
+      <path class="er-line" style="animation-delay:.35s" d="M420 92 H570"/>
+      <path class="er-line" style="animation-delay:.5s" d="M218 378 H300"/>
+      <path class="er-line" style="animation-delay:.65s" d="M420 378 H570"/>
+      <path class="er-line" style="animation-delay:.8s" d="M640 132 V196"/>
+      <path class="er-line" style="animation-delay:.95s" d="M640 350 V264"/>
+      <path class="er-line" style="animation-delay:1.1s" d="M360 230 H296"/>
+      <!-- 基数 -->
+      <text class="er-lbl" x="248" y="84">1</text><text class="er-lbl" x="446" y="84">n</text>
+      <text class="er-lbl" x="248" y="370">1</text><text class="er-lbl" x="446" y="370">n</text>
+      <text class="er-lbl" x="650" y="168">m</text><text class="er-lbl" x="650" y="316">n</text>
+      <!-- 实体 -->
+      <g class="er-node" data-e="dept" style="animation-delay:.15s"><rect x="60" y="64" width="158" height="56" rx="8" fill="url(#eg)" stroke="#4dd8e8"/><text class="er-txt" x="139" y="97" text-anchor="middle">部门</text></g>
+      <g class="er-node" data-e="worker" style="animation-delay:.3s"><rect x="570" y="64" width="158" height="56" rx="8" fill="url(#eg)" stroke="#a78bfa"/><text class="er-txt" x="649" y="97" text-anchor="middle">员工</text></g>
+      <g class="er-node" data-e="factory" style="animation-delay:.45s"><rect x="60" y="350" width="158" height="56" rx="8" fill="url(#eg)" stroke="#4dd8e8"/><text class="er-txt" x="139" y="383" text-anchor="middle">厂家</text></g>
+      <g class="er-node" data-e="goods" style="animation-delay:.6s"><rect x="570" y="350" width="158" height="56" rx="8" fill="url(#eg)" stroke="#ffb86b"/><text class="er-txt" x="649" y="383" text-anchor="middle">商品</text></g>
+      <!-- 联系菱形 -->
+      <g class="er-node" data-e="belong" style="animation-delay:.75s"><polygon points="360,62 420,92 360,122 300,92" fill="url(#eg)" stroke="#a78bfa"/><text class="er-txt" x="360" y="97" text-anchor="middle" font-size="12">属于</text></g>
+      <g class="er-node" data-e="supply" style="animation-delay:.9s"><polygon points="360,348 420,378 360,408 300,378" fill="url(#eg)" stroke="#4dd8e8"/><text class="er-txt" x="360" y="383" text-anchor="middle" font-size="12">供应</text></g>
+      <g class="er-node" data-e="sale" style="animation-delay:1.05s"><polygon points="400,196 470,230 400,264 330,230" fill="url(#eg)" stroke="#ffb86b"/><text class="er-txt" x="400" y="235" text-anchor="middle" font-size="12">销售</text></g>
+      <!-- 联系属性 -->
+      <g class="er-node" data-e="saleattr" style="animation-delay:1.2s"><ellipse cx="248" cy="212" rx="48" ry="18" fill="none" stroke="#ffb86b" stroke-dasharray="4 3"/><text class="er-attr" x="248" y="216" text-anchor="middle">销售数量</text></g>
+      <g class="er-node" data-e="saleattr" style="animation-delay:1.3s"><ellipse cx="248" cy="252" rx="48" ry="18" fill="none" stroke="#ffb86b" stroke-dasharray="4 3"/><text class="er-attr" x="248" y="256" text-anchor="middle">时间</text></g>
+      <text class="er-attr" x="30" y="446">鼠标悬停任一实体 / 联系 → 下方显示它的属性与转换去向　｜　虚线椭圆 = 联系自带属性</text>
+    </svg>
+    <div id="er-info">👆 把鼠标移到矩形或菱形上，看看它有哪些属性、转换后会去哪里。</div>
+  </div>
+
+  <h3 class="reveal">为什么「销售数量、时间」必须挂在联系上？</h3>
+  <p class="reveal">点两个按钮，看两种设计的下场。这是整个建模环节最值钱的一个判断。</p>
+  <div class="btn-row reveal"><button class="btn" id="badBtn">❌ 试试塞进员工表</button><button class="btn" id="goodBtn">✅ 看看独立成表</button></div>
+  <div class="demo-split reveal">
+    <div class="bad" id="badBox"><h4>员工表里塞商品</h4><div class="mini">王鹏飞 男 34 职工 6200 … <b>商品：G01001 / G01003 / G02003</b><br>吴娜丽 女 48 经理 9400 … <b>商品：G03001 / G04003</b></div><div style="margin-top:10px">一个格子里塞了 3 个编号 → <strong>违反「分量原子」（1NF）</strong>；若改成 3 行，姓名工资又要重复 3 遍 → 冗余 + 更新异常。</div></div>
+    <div class="good" id="goodBox"><h4>独立一张销售表</h4><div class="mini">员工表保持干净，一人一行；销售表每行只描述<strong>「谁 · 卖了什么 · 卖了多少 · 什么时候」</strong>这一件事：</div><div style="margin-top:8px"><span class="chip">W001 / G01001 / 15 / 2022-10-31</span><span class="chip">W001 / G01003 / 10 / 2022-10-31</span><span class="chip">W001 / G02003 / 20 / 2022-10-31</span></div><div style="margin-top:10px">数量挂的是「(员工, 商品)」这个组合，天然属于联系。</div></div>
+  </div>
+
+  <h3 class="reveal">建模 6 个常见翻车点</h3>
+  <div class="grid g2 reveal">
+    <div class="card"><b>漏掉「部门」</b><div class="mini">需求明确给了部门编号 / 名称 / 电话，别只画 3 个实体。</div></div>
+    <div class="card"><b>给 1:n 也单独建表</b><div class="mini">「属于」表行数会和员工表一模一样，纯冗余。</div></div>
+    <div class="card"><b>把 m:n 省略</b><div class="mini">一个员工卖 5 种商品就得写 5 行员工信息，或一格塞 5 个值。</div></div>
+    <div class="card"><b>把数量当商品属性</b><div class="mini">它是联系属性，不是商品属性。</div></div>
+    <div class="card"><b>1:n 方向画反</b><div class="mini">「每个员工只能属于一个部门」→ 部门是 1 端，员工是 n 端。</div></div>
+    <div class="card"><b>忘记标主键与基数</b><div class="mini">任务 3 明确要求标注主键和联系类型。</div></div>
+  </div>
+</section>
+
+<!-- ============ 3 转关系模式 ============ -->
+<section id="s3">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 03</div><h2>E-R → 关系模式：三条规则走天下</h2>
+  <p>转换不是靠背，靠一句口诀：<strong>1:n 把「1」的主键塞进「n」端；m:n 必须另起一张表；联系自带属性跟着联系走。</strong></p></div>
+
+  <div class="tbl-wrap reveal"><table>
+    <thead><tr><th>联系类型</th><th>怎么做</th><th>主键</th><th>外键</th></tr></thead>
+    <tbody>
+      <tr><td>1 : 1</td><td>合并到任意一端，或一端加另一端主键并加 UNIQUE</td><td>该端原主键</td><td>新增列</td></tr>
+      <tr><td class="ok">1 : n</td><td><strong>在 n 端表加 1 端主键；不新建表</strong></td><td>n 端原主键</td><td>n 端新增列</td></tr>
+      <tr><td class="ok">m : n</td><td><strong>新建联系表 = 两端主键 + 联系属性</strong></td><td>两端主键组合</td><td>两列各作外键</td></tr>
+      <tr><td>自联系</td><td>同表内加一列指向自身主键「职工—领导」</td><td>原主键</td><td>引用本表</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="reveal">为什么 1:n 不建表、m:n 必须建？</h3>
+  <div class="grid g2 reveal">
+    <div class="card"><b>1:n 建表 = 白干</b><div class="mini">若建「(部门编号, 员工编号)」表，因为每个员工只出现一次，它和员工表<strong>行数完全相同</strong>，只是把对应关系又抄了一遍。</div></div>
+    <div class="card"><b>m:n 不建表 = 违规</b><div class="mini">把商品编号塞进员工表，一人卖 5 种就要重复 5 行姓名工资，或一格塞 5 个编号（违反 1NF）。<strong>只有独立表能同时满足原子性与无冗余。</strong></div></div>
+  </div>
+
+  <h3 class="reveal">点一下，看 5 张表依次「落」下来</h3>
+  <div class="btn-row reveal"><button class="btn on" id="buildBtn">▶ 开始转换</button><button class="btn" id="resetBtn">↺ 重置</button></div>
+  <div class="grid g2 reveal" id="schemaBox"></div>
+  <div class="note cy reveal"><b>进阶提醒</b>：教材图 3-24 的 Sale 主键取 (Wno, Gno)。若允许同一人同一商品<strong>不同日期多次销售</strong>，严谨设计要把 Sdate 也纳入联合主键 PK(Wno, Gno, Sdate)。图 4-9 里每个组合只出现一次、日期全是 2022-10-31，所以教材写法在本题成立。</div>
+
+  <h3 class="reveal">概念模式 → 物理字段对照</h3>
+  <div class="tbl-wrap reveal"><table>
+    <thead><tr><th>概念属性</th><th>物理字段</th><th>类型</th></tr></thead>
+    <tbody>
+      <tr><td>部门编号 / 名称 / 电话</td><td>Dno / Dname / Dtel</td><td>CHAR(3) / VARCHAR(20) / CHAR(11)</td></tr>
+      <tr><td>员工编号 / 姓名 / 性别</td><td>Wno / Wname / Wsex</td><td>CHAR(4) / VARCHAR(10) / ENUM</td></tr>
+      <tr><td>年龄 / 职务 / 工资 / 电话</td><td>Wage / Wjob / Sal / Wtel</td><td>INT / VARCHAR(20) / DECIMAL(6,1) / CHAR(11)</td></tr>
+      <tr><td>所属部门</td><td>Dno（外键）</td><td>CHAR(3) → Department.Dno</td></tr>
+      <tr><td>厂家编号 / 厂名 / 地址</td><td>Fno / Fname / Addr</td><td>CHAR(4) / VARCHAR(30) / VARCHAR(30)</td></tr>
+      <tr><td>销售(职工, 商品, 数量, 时间)</td><td>Sale(Wno, Gno, Snum, Sdate)</td><td>联合主键 + 两个外键</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="reveal">范式：为什么是 5 张表而不是 1 张大宽表</h3>
+  <div class="grid g3 reveal">
+    <div class="card"><b>1NF · 原子</b><div class="mini">格子不可再分。拆 m:n 本质上就是为了它。</div></div>
+    <div class="card"><b>2NF · 完全依赖</b><div class="mini">销售数量依赖 (员工编号, 商品编号) <strong>整体</strong>。若把商品名称也塞进销售表，它只依赖商品编号 → 部分依赖，应移回商品表。</div></div>
+    <div class="card"><b>3NF · 无传递依赖</b><div class="mini">员工表存部门编号就够了，别再存部门电话（电话通过部门编号传递依赖）。教材把部门单独建表正是 3NF。</div></div>
+  </div>
+</section>
+
+<!-- ============ 4 关系代数 ============ -->
+<section id="s4">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 04</div><h2>关系代数演算台：六道题，亲自点一遍</h2>
+  <p>σ 是<strong>横着剪</strong>（挑行），π 是<strong>竖着剪</strong>（挑列并去重），⋈ 是把两张表<strong>拼起来</strong>，÷ 专治「全部 / 每一个」。别背结果，看它怎么一步步出来。</p></div>
+
+  <h3 class="reveal">运算符速查</h3>
+  <div class="grid g4 reveal">
+    <div class="card"><span class="big-num">∪ ∩ −</span><h4>集合三兄弟</h4><div class="mini">要求<strong>并兼容</strong>：属性个数相同、对应域相同。差集不满足交换律。</div></div>
+    <div class="card"><span class="big-num">× </span><h4>笛卡尔积</h4><div class="mini">R 每行 × S 每行全部配对。度相加、行数相乘；漏写连接条件就会得到它。</div></div>
+    <div class="card"><span class="big-num">σ</span><h4>选择 Selection</h4><div class="mini">σ<sub>F</sub>(R) 按条件挑行，不丢列、不去重。</div></div>
+    <div class="card"><span class="big-num">π</span><h4>投影 Projection</h4><div class="mini">π<sub>A</sub>(R) 挑列，<strong>自动去重</strong>（因为关系是集合）。</div></div>
+    <div class="card"><span class="big-num">⋈</span><h4>连接 Join</h4><div class="mini">先 × 再 σ。自然连接自动按同名列等值、去重列。</div></div>
+    <div class="card"><span class="big-num">÷</span><h4>除法 Division</h4><div class="mini">「与 S 中<strong>每一个</strong>元素都配过对」的元组。对应 SQL 的双重 NOT EXISTS。</div></div>
+    <div class="card"><span class="big-num">θ</span><h4>θ 连接</h4><div class="mini">比较符可以是 = ≠ &gt; &lt;；取 = 时即等值连接。</div></div>
+    <div class="card"><span class="big-num">σ→π</span><h4>组合套路</h4><div class="mini">定表 → σ 过滤 → ⋈ 拼接 → π 取列 → 遇「全部」用 ÷ 或差集。</div></div>
+  </div>
+
+  <h3 class="reveal">原始数据表（图 2-12）</h3>
+  <div class="grid g2 reveal">
+    <div class="tbl-wrap" style="margin:0"><table><thead><tr><th colspan="4">R ( A, B, C, D )</th></tr><tr><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead><tbody>
+      <tr><td>A1</td><td>B1</td><td>C1</td><td>D1</td></tr><tr><td>A1</td><td>B1</td><td>C2</td><td>D2</td></tr>
+      <tr><td>A1</td><td>B1</td><td>C3</td><td>D3</td></tr><tr><td>A2</td><td>B2</td><td>C1</td><td>D1</td></tr>
+      <tr><td>A2</td><td>B2</td><td>C2</td><td>D2</td></tr><tr><td>A3</td><td>B3</td><td>C1</td><td>D1</td></tr>
+    </tbody></table></div>
+    <div class="tbl-wrap" style="margin:0"><table><thead><tr><th colspan="3">S ( C, D, E )</th></tr><tr><th>C</th><th>D</th><th>E</th></tr></thead><tbody>
+      <tr><td>C1</td><td>D1</td><td>E1</td></tr><tr><td>C2</td><td>D2</td><td>E2</td></tr><tr><td>C2</td><td>D2</td><td>E3</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="note rd reveal"><b>看仔细！</b>S 的第 3 行是 <strong>(C2, D2, E3)</strong>，不是 (C3,D3)。教材这一格最容易看错，它直接决定第 (5)(6) 题答案。<br><br>先算两个中间量：<br>π<sub>3,4</sub>(R) = {(C1,D1), (C2,D2), (C3,D3)} ← 6 行投影后去重成 <strong>3 行</strong><br>π<sub>1,2</sub>(S) = {(C1,D1), (C2,D2)} ← 3 行去重成 <strong>2 行</strong><br>两者都是 2 度、域相同 → 满足并兼容，可以做 ∪ ∩ −。</div>
+
+  <h3 class="reveal">🎛 演算台：点题号，看推导，结果逐行弹出</h3>
+  <div class="tabs reveal" id="calcTabs">
+    <button class="tab on" data-c="1">(1) 并</button><button class="tab" data-c="2">(2) 交</button>
+    <button class="tab" data-c="3">(3) 差</button><button class="tab" data-c="4">(4) 选择</button>
+    <button class="tab" data-c="5">(5) 自然连接</button><button class="tab" data-c="6">(6) 除法</button>
+  </div>
+  <div class="card reveal">
+    <div id="calcTitle" style="font-size:18px;color:var(--head);font-weight:800;margin-bottom:4px"></div>
+    <div class="mini" id="calcExpr" style="font-family:Consolas,monospace;color:var(--cy);margin-bottom:12px"></div>
+    <div class="stage" id="calcSteps"></div>
+    <div id="calcResult"></div>
+    <div class="btn-row" id="calcExtra"></div>
+  </div>
+
+  <h3 class="reveal">表达式书写套路（图 2 习题 5）</h3>
+  <p class="reveal">五步：<strong>定表 → σ 过滤行 → ⋈ 拼接表 → π 取列 → 遇「全部 / 都没有」用 ÷ 或差集</strong>。以下用口径 B（中文属性名）。</p>
+  <div class="code-wrap reveal"><pre class="sql">(1) 王美丽所在部门编号和职务
+    π_{部门编号, 职务}( σ_{姓名='王美丽'}(员工) )
+
+(2) 年龄大于 25 岁的男职工的编号、姓名、性别
+    π_{员工编号, 姓名, 性别}( σ_{年龄>25 ∧ 性别='男'}(员工) )
+
+(3) W005 所销售的商品编号和商品名称
+    π_{商品编号, 商品名称}( σ_{员工编号='W005'}(销售) ⋈ 商品 )
+
+(4) 王伟大「没有销售」的商品编号和名称   ← 全体减已有
+    π_{商品编号, 商品名称}(商品)
+  − π_{商品编号, 商品名称}( σ_{姓名='王伟大'}(员工) ⋈ 销售 ⋈ 商品 )
+
+(5) 全部员工销售的商品
+  口径①「被全体员工都卖过」→ 除法
+    π_{商品编号,商品名称}( 商品 ⋈ ( π_{员工编号,商品编号}(销售) ÷ π_{员工编号}(员工) ) )
+  口径②「所有被卖过的商品清单」→ 投影去重
+    π_{商品编号, 商品名称}( 销售 ⋈ 商品 )</pre></div>
+  <div class="note reveal"><b>第 (4) 题的精髓</b>：「A 中没有 B」= 全体 A − 已与 B 关联的 A。它在 SQL 里对应 NOT IN / NOT EXISTS / LEFT JOIN … IS NULL 三种写法，项目 5 任务 13 会原封不动再用一次。</div>
+
+  <h3 class="reveal">关系代数 ↔ SQL 翻译表</h3>
+  <div class="tbl-wrap reveal"><table><thead><tr><th>关系代数</th><th>SQL</th><th>提醒</th></tr></thead><tbody>
+    <tr><td>σ<sub>F</sub>(R)</td><td>SELECT * FROM R WHERE F</td><td>WHERE 不过滤分组</td></tr>
+    <tr><td>π<sub>A</sub>(R)</td><td>SELECT <strong>DISTINCT</strong> A FROM R</td><td>SQL 默认不去重，必须写 DISTINCT</td></tr>
+    <tr><td>R ∪ S</td><td>UNION / UNION ALL</td><td>UNION 去重，ALL 不去重</td></tr>
+    <tr><td>R − S</td><td>NOT IN / NOT EXISTS / LEFT JOIN … IS NULL</td><td>MySQL 无 EXCEPT 时用这三种</td></tr>
+    <tr><td>R ⋈ S</td><td>JOIN … ON / NATURAL JOIN</td><td>同名列可用 NATURAL JOIN</td></tr>
+    <tr><td>R ÷ S</td><td>双重 NOT EXISTS，或 GROUP BY + HAVING COUNT = 总数</td><td>「全部」语义的标准翻译</td></tr>
+  </tbody></table></div>
+</section>
+
+<!-- ============ 5 建表 ============ -->
+<section id="s5">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 05</div><h2>建库建表：给每个字段选对「容器」</h2>
+  <p>DDL 负责结构。项目 3 的 15 个任务可归成四组：建库与开关 → 5 张 CREATE TABLE → 恢复检查 → ALTER 改结构。</p></div>
+
+  <h3 class="reveal">CHAR vs VARCHAR（讨论题）· 看格子怎么被填满</h3>
+  <div class="btn-row reveal"><button class="btn on" id="charBtn">CHAR(6)：存 'D01'</button><button class="btn" id="varcharBtn">VARCHAR(6)：存 'D01'</button></div>
+  <div class="card reveal"><div id="charDemo" style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-family:Consolas,monospace;font-size:13px"></div><div class="mini" id="charTip" style="margin-top:12px"></div></div>
+  <div class="grid g2 reveal" style="margin-top:14px">
+    <div class="card"><b>CHAR(n) · 定长</b><div class="mini">不足补空格，读取定位快，比较时忽略尾部空格。<strong>适合长度固定的编号、电话、状态码</strong>：Dno CHAR(3)、Wno CHAR(4)、Gno CHAR(6)、Fno CHAR(4)、Wtel / Dtel CHAR(11)。</div></div>
+    <div class="card"><b>VARCHAR(n) · 变长</b><div class="mini">按实际长度存，另加 1~2 字节长度前缀，省空间但略慢。<strong>适合长短差异大的文本</strong>：Dname、Gname、Fname、Addr、Wjob。</div></div>
+  </div>
+  <div class="note cy reveal">补充：utf8mb4 下括号里的 n 数的是<strong>字符</strong>，一个汉字也算 1 个字符；建库选 utf8mb4 才能完整存下中文商品名与生僻字。</div>
+
+  <h3 class="reveal">其余类型与约束</h3>
+  <div class="grid g3 reveal">
+    <div class="card"><span class="tag cy">INT</span><div class="mini">Wage 年龄、Snum 销售数量、Num 库存数量。可加 UNSIGNED 禁负、DEFAULT 给默认值。</div></div>
+    <div class="card"><span class="tag pu">DECIMAL(6,1)/(6,2)</span><div class="mini">Sal 工资、Price 单价。<strong>金额绝不用 FLOAT</strong>：0.1+0.2 在浮点里是 0.30000000000000004，对账会出偏差。</div></div>
+    <div class="card"><span class="tag or">ENUM</span><div class="mini">Wsex ENUM('男','女')、Hobby ENUM('音乐','阅读','运动')，天然实现用户定义完整性。</div></div>
+    <div class="card"><span class="tag gr">DATETIME</span><div class="mini">Sale.Sdate。插入 '2022-10-31' 自动补成 00:00:00。</div></div>
+    <div class="card"><span class="tag">UNIQUE / NOT NULL</span><div class="mini">Dname、Fname 取值唯一；编号与姓名非空。</div></div>
+    <div class="card"><span class="tag rd">DEFAULT 0 / 5000</span><div class="mini">Goods.Num 默认 0；任务 10 给 Sal 加默认 5000。</div></div>
+  </div>
+
+  <h3 class="reveal">外键依赖顺序 · 箭头依次点亮</h3>
+  <div class="card reveal" id="depBox" style="font-family:Consolas,monospace;font-size:13px;line-height:2.2"></div>
+  <div class="btn-row reveal"><button class="btn on" id="depBtn">▶ 播放依赖顺序</button></div>
+  <div class="note reveal"><b>FOREIGN_KEY_CHECKS 是什么</b>：<code>SET FOREIGN_KEY_CHECKS = 0</code> 只是<strong>本次会话暂时跳过校验</strong>，外键定义仍在表结构里。它让你可以任意顺序建表、灌数据；任务 8 必须改回 1，否则脏数据会溜进去。</div>
+
+  <h3 class="reveal">五张表字段 · 点标签切换</h3>
+  <div class="tabs reveal" id="tblTabs"><button class="tab on" data-t="Department">Department</button><button class="tab" data-t="Worker">Worker</button><button class="tab" data-t="Factory">Factory</button><button class="tab" data-t="Goods">Goods</button><button class="tab" data-t="Sale">Sale</button></div>
+  <div class="tbl-wrap reveal"><table id="tblPane"></table></div>
+
+  <h3 class="reveal">任务 1–8 · 完整可运行建库脚本</h3>
+  <div class="code-wrap reveal"><pre class="sql">-- 任务 1：创建数据库 YGGL
+CREATE DATABASE IF NOT EXISTS YGGL DEFAULT CHARACTER SET utf8mb4;
+
+-- 任务 2：选择数据库并取消外键约束
+USE YGGL;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- 任务 3：部门表
+CREATE TABLE Department(
+  Dno   CHAR(3)     NOT NULL PRIMARY KEY,
+  Dname VARCHAR(20) NOT NULL UNIQUE,
+  Dtel  CHAR(11)
+);
+
+-- 任务 5：厂家表（Goods 的父表，先建）
+CREATE TABLE Factory(
+  Fno   CHAR(4)     NOT NULL PRIMARY KEY,
+  Fname VARCHAR(30) NOT NULL UNIQUE,
+  Addr  VARCHAR(30)
+);
+
+-- 任务 4：职工表
+CREATE TABLE Worker(
+  Wno   CHAR(4)      NOT NULL PRIMARY KEY,
+  Wname VARCHAR(10)  NOT NULL,
+  Wsex  ENUM('男','女'),
+  Wage  INT,
+  Wjob  VARCHAR(20),
+  Sal   DECIMAL(6,1),
+  Wtel  CHAR(11),
+  Dno   CHAR(3),
+  CONSTRAINT fk_w_d FOREIGN KEY(Dno) REFERENCES Department(Dno)
+);
+
+-- 任务 6：商品表
+CREATE TABLE Goods(
+  Gno   CHAR(6)      NOT NULL PRIMARY KEY,
+  Gname VARCHAR(30)  NOT NULL,
+  Type  VARCHAR(30),
+  Price DECIMAL(6,2) UNSIGNED,
+  Num   INT DEFAULT 0,
+  Fno   CHAR(4)      NOT NULL,
+  CONSTRAINT fk_g_f FOREIGN KEY(Fno) REFERENCES Factory(Fno)
+);
+
+-- 任务 7：销售表（联合主键 + 两个外键）
+CREATE TABLE Sale(
+  Wno   CHAR(4) NOT NULL,
+  Gno   CHAR(6) NOT NULL,
+  Snum  INT,
+  Sdate DATETIME,
+  PRIMARY KEY(Wno, Gno),
+  CONSTRAINT fk_s_w FOREIGN KEY(Wno) REFERENCES Worker(Wno),
+  CONSTRAINT fk_s_g FOREIGN KEY(Gno) REFERENCES Goods(Gno)
+);
+
+-- 任务 8：启动外键约束
+SET FOREIGN_KEY_CHECKS = 1;</pre></div>
+
+  <h3 class="reveal">任务 9–15 · 点按钮看每条 ALTER</h3>
+  <div class="btn-row reveal" id="alterBtns"></div>
+  <div class="card reveal"><div id="alterTitle" style="color:var(--head);font-weight:700;margin-bottom:6px"></div><div class="mini" id="alterDesc" style="margin-bottom:10px"></div><div class="code-wrap" style="margin:0"><pre class="sql" id="alterSql"></pre></div></div>
+  <div class="note rd reveal"><b>任务 11 的隐藏坑</b>：Goods.Gno 被 Sale 外键引用时，直接 <code>ALTER TABLE Goods DROP PRIMARY KEY</code> 可能报错。先删 Sale 上的外键约束，或临时关掉外键检查，操作完再补回来。</div>
+  <div class="note reveal"><b>CREATE TABLE … LIKE vs AS SELECT</b>：LIKE 复制列定义、主键、索引，<strong>不复制数据、不复制外键</strong>；AS SELECT 复制数据与列名，<strong>不复制索引与约束</strong>。任务 14 要「复制 Goods 的结构」，只能用 LIKE。</div>
+</section>
+
+<!-- ============ 6 数据更新 ============ -->
+<section id="s6">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 06</div><h2>数据更新：把空表喂饱，再改对、删干净</h2>
+  <p>DML 三件套 INSERT / UPDATE / DELETE。这一章最值钱的不是语法，而是两个习惯：<strong>先父后子</strong>，以及<strong>改之前先 SELECT 预览</strong>。</p></div>
+
+  <h3 class="reveal">插入的四种姿势（讨论题 1）</h3>
+  <div class="grid g4 reveal">
+    <div class="card"><b>单行 VALUES</b><div class="mini">临时补一条，逐条写较慢。</div></div>
+    <div class="card"><b>多行 VALUES ⭐</b><div class="mini">一条语句灌完一张表。<strong>本项目最简单方便</strong>。</div></div>
+    <div class="card"><b>INSERT … SELECT</b><div class="mini">表间复制，无需中间文件。</div></div>
+    <div class="card"><b>LOAD DATA / 向导</b><div class="mini">大批量外部 CSV，需路径与权限。</div></div>
+  </div>
+  <div class="note reveal"><b>列清单要不要写？</b>写 <code>INSERT INTO t VALUES (…)</code> 要求值个数、顺序与表结构完全一致；写 <code>INSERT INTO t(c1,c2,…) VALUES (…)</code> 只列要给的列，未列的取默认值或 NULL。任务 3 特别提醒「注意带空值数据记录行的插入」，用列清单最稳。</div>
+
+  <h3 class="reveal">默认值 / 自增 / NULL（讨论题 2）</h3>
+  <div class="grid g2 reveal">
+    <div class="card"><b>默认值</b><div class="mini">省略该列 <strong>或显式写 DEFAULT</strong> 才触发。写 NULL 是「给空值」，不是取默认值。NOT NULL 且无默认值的列漏写会直接报错。</div></div>
+    <div class="card"><b>自增列</b><div class="mini">不要手动填具体值；可写 NULL / 0 / 省略。批量插入时 LAST_INSERT_ID() 只返回<strong>第一行</strong>生成的 ID；回滚、DELETE 会留空洞，<strong>不保证连续</strong>。</div></div>
+  </div>
+
+  <h3 class="reveal">插入顺序 · 父表必须先有数据</h3>
+  <div class="code-wrap reveal"><pre class="sql">USE YGGL;
+-- ① Department(4 行) 与 Factory(6 行)
+INSERT INTO Department VALUES
+('D01','人事部','06286881688'),('D02','销售部','06286882578'),
+('D03','财务部','06286883698'),('D04','采购部','06286884678');
+
+-- ② Worker(13 行，W003 的 Wjob 为 NULL)
+INSERT INTO Worker(Wno,Wname,Wsex,Wage,Wjob,Sal,Wtel,Dno) VALUES
+('W001','王鹏飞','男',34,'职工',6200,'15166889961','D02'),
+('W002','李海明','男',45,'经理',9200,'15266889962','D01'),
+('W003','张菲璐','女',25,NULL,  4100,'15366889963','D02'),
+('W004','刘诚宇','男',27,'职工',5800,'15466889964','D03'),
+('W005','周雨嫣','女',40,'经理',9000,'15566889965','D01'),
+('W006','赵英',  '女',36,'职工',6200,'15666889966','D03'),
+('W007','张伟',  '男',50,'总经理',15000,'15766889967','D01'),
+('W008','吴娜丽','女',48,'经理',9400,'15866889968','D02'),
+('W009','李勇浩','男',28,'职工',5800,'15966889969','D04'),
+('W010','刘婷雯','女',30,'职工',6000,'15066889960','D04'),
+('W011','杨光磊','男',32,'职工',6100,'13866889968','D02'),
+('W012','何铭辰','男',35,'职工',6200,'13666889966','D03'),
+('W013','许阳',  '男',46,'经理',9200,'13766889967','D04');
+
+-- 带空值行的另一种写法：省略 Wjob 列，让它取默认 NULL
+-- INSERT INTO Worker(Wno,Wname,Wsex,Wage,Sal,Wtel,Dno)
+--   VALUES ('W003','张菲璐','女',25,4100,'15366889963','D02');
+
+-- ③ Goods(12 行) ④ Sale(20 行，Sdate 统一 '2022-10-31')
+-- 完整数据见配套 Word 讲义 6.4 节</pre></div>
+
+  <h3 class="reveal">🧪 NULL 三值逻辑实验室（讨论题 4）</h3>
+  <p class="reveal">SQL 有 TRUE / FALSE / <strong>UNKNOWN</strong> 三种结果。任何值与 NULL 做普通比较都得到 UNKNOWN，而 WHERE 只保留 TRUE —— 所以 <code>= NULL</code> 永远查不到东西。点下面三个按钮试试：</p>
+  <div class="btn-row reveal" id="nullBtns"><button class="btn" data-null="eq">WHERE Wjob = NULL</button><button class="btn" data-null="is">WHERE Wjob IS NULL</button><button class="btn" data-null="not">WHERE Wjob IS NOT NULL</button></div>
+  <div class="stage reveal" id="nullStage">👆 点上面的按钮，看数据库怎么判定 W003 张菲璐这一行。</div>
+  <div class="note cy reveal">补充：聚合函数 AVG / SUM / MAX / MIN / COUNT(列) <strong>自动忽略 NULL</strong>；COUNT(*) 把所有行都算进去（包括含 NULL 的行）。MySQL 还有空安全等号 <code>&lt;=&gt;</code>。</div>
+
+  <h3 class="reveal">🎬 UPDATE 模拟器：点一下，数字真的会动</h3>
+  <div class="btn-row reveal" id="updBtns">
+    <button class="btn on" data-up="9">任务 9 · 全员年龄 +1</button>
+    <button class="btn" data-up="10">任务 10 · 洗衣机 −200</button>
+    <button class="btn" data-up="11">任务 11 · 经理 +500</button>
+    <button class="btn" data-up="12">任务 12 · 空职务 +2</button>
+    <button class="btn" data-up="reset">↺ 还原</button>
+  </div>
+  <div class="card reveal">
+    <div class="mini" id="updSql" style="font-family:Consolas,monospace;color:var(--cy);margin-bottom:10px"></div>
+    <div class="tbl-wrap" style="margin:0"><table id="updTable"></table></div>
+    <div class="mini" id="updTip" style="margin-top:10px"></div>
+  </div>
+  <div class="note rd reveal"><b>铁律</b>：只改部分行<strong>必须带 WHERE</strong>；不带 WHERE 就是全表改（任务 9 正好要全表 +1）。稳妥做法是先 <code>SELECT * FROM 表 WHERE 条件</code> 看命中行，确认后再把 SELECT 换成 UPDATE。<br>另注：Price 是 UNSIGNED，若减成负数 MySQL 会直接报 out of range —— 这正是用户定义完整性在起作用。</div>
+
+  <h3 class="reveal">模糊条件（讨论题 5）</h3>
+  <div class="grid g2 reveal">
+    <div class="card"><b>LIKE '%经理%'</b><div class="mini">任意位置含「经理」，<strong>会同时命中「经理」和「总经理」</strong>。任务 11 说「包括经理」正适合它；若只想精确匹配用 <code>= '经理'</code>。</div></div>
+    <div class="card"><b>% 与 _</b><div class="mini"><code>%</code> 任意多字符，<code>_</code> 恰好一个字符。<code>'王%'</code> 匹配姓王的；还有 NOT LIKE、REGEXP。</div></div>
+    <div class="card"><b>BETWEEN 30 AND 40</b><div class="mini"><strong>含两端</strong>，等价 &gt;=30 AND &lt;=40。任务 13「30~40」要连 30 和 40 一起删。</div></div>
+    <div class="card"><b>NOT IN 的坑</b><div class="mini">集合里只要有一个 NULL，整体结果恒为 UNKNOWN → 返回空集。改用 NOT EXISTS 或先滤掉 NULL。</div></div>
+  </div>
+
+  <h3 class="reveal">DELETE vs TRUNCATE（讨论题 6、任务 13–14）</h3>
+  <div class="code-wrap reveal"><pre class="sql">-- 任务 13：删除 Workercopy 中年龄 30~40 的记录（含端点）
+DELETE FROM Workercopy WHERE Wage BETWEEN 30 AND 40;
+
+-- 任务 14：清空 Workercopy 所有数据记录
+TRUNCATE TABLE Workercopy;   -- 或 DELETE FROM Workercopy;</pre></div>
+  <div class="tbl-wrap reveal"><table><thead><tr><th>比较项</th><th>DELETE</th><th>TRUNCATE</th></tr></thead><tbody>
+    <tr><td>类别</td><td>DML</td><td>DDL</td></tr><tr><td>WHERE</td><td class="ok">可带，删部分行</td><td class="no">只能整表清空</td></tr>
+    <tr><td>回滚</td><td class="ok">事务中可回滚</td><td class="no">隐式提交，不可回滚</td></tr>
+    <tr><td>方式</td><td>逐行删，写日志，触发 DELETE 触发器</td><td>重建表数据文件，快，不触发行级触发器</td></tr>
+    <tr><td>AUTO_INCREMENT</td><td>保留计数</td><td>归零</td></tr>
+    <tr><td>外键引用</td><td>按约束逐行检查</td><td>被子表引用时通常直接报错</td></tr>
+  </tbody></table></div>
+  <p class="reveal">选择原则：<em>删一部分 / 要能回滚 → DELETE；清空临时表并重置自增 → TRUNCATE。</em>项目 4 特意建 Workercopy、Goodscopy 两张副本表，就是给你练破坏性操作的安全沙盒。</p>
+</section>
+
+<!-- ============ 7 查询 ============ -->
+<section id="s7">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 07</div><h2>数据查询：14 个任务，把前面全部串起来</h2>
+  <p>SELECT 是这套实训的终点。下面先搞懂「数据库实际按什么顺序干活」，再进查询实验室逐题点开。</p></div>
+
+  <h3 class="reveal">SELECT 的真正执行顺序 · 点「下一步」</h3>
+  <p class="reveal mini">你写 SQL 的顺序是 SELECT→FROM→WHERE→GROUP BY→HAVING→ORDER BY→LIMIT，但数据库<strong>不是</strong>按这个顺序执行的。这个错位解释了一大半语法错误。</p>
+  <div class="btn-row reveal"><button class="btn on" id="flowBtn">▶ 下一步</button><button class="btn" id="flowReset">↺ 重置</button></div>
+  <div class="card reveal" id="flowBox"></div>
+  <div class="note reveal"><b>三条常考结论</b>：① WHERE 过滤行、HAVING 过滤组；② 聚合函数不能出现在 WHERE 里；③ SELECT 里的非聚合列原则上必须出现在 GROUP BY 中（ONLY_FULL_GROUP_BY 会强制检查）。</div>
+
+  <h3 class="reveal">LEFT JOIN 为什么能「一个都不少」（任务 9 / 11）</h3>
+  <p class="reveal">把 Goods 当点名册：左表 12 个商品<strong>全部保留</strong>，右表 Sale 里没卖过的，就填 NULL。点按钮看 NULL 是怎么被补出来的：</p>
+  <div class="btn-row reveal"><button class="btn on" id="joinBtn">▶ 播放保行过程</button></div>
+  <div class="card reveal"><div class="tbl-wrap" style="margin:0"><table id="joinTable"></table></div><div class="mini" id="joinTip" style="margin-top:10px"></div></div>
+  <div class="note rd reveal"><b>最容易翻车的一句</b>：外连接只能用 <code>JOIN … ON</code>。如果把右表条件写进 <code>WHERE</code>（例如 <code>WHERE g.Gname = '海尔'</code>），LEFT JOIN 补出来的 NULL 行会被 WHERE 淘汰，<strong>外连接悄悄退化成内连接</strong>。任务 11 更要一路 LEFT JOIN：Worker → Department → Sale → Goods，任何一环换成 INNER JOIN，没销售记录的 W009~W013 就消失了。</div>
+
+  <h3 class="reveal">🧪 查询实验室 · 14 个任务逐个点</h3>
+  <p class="reveal mini">结果按<strong>图 5-44 数据口径</strong>（W005 属 D03）。点题号看 SQL、考点提示与运行结果。</p>
+  <div class="tabs reveal" id="qTabs"></div>
+  <div class="card reveal">
+    <div id="qTitle" style="font-size:17px;color:var(--head);font-weight:800"></div>
+    <div class="mini" id="qPoint" style="margin:6px 0 10px"></div>
+    <div class="code-wrap"><pre class="sql" id="qSql"></pre></div>
+    <div id="qResult"></div>
+  </div>
+
+  <h3 class="reveal">双重 NOT EXISTS：把「全部」翻成 SQL</h3>
+  <p class="reveal">任务 13「销售了所有厂家商品的职工」是全套最难的一题。逻辑链是三层嵌套，点按钮逐层展开：</p>
+  <div class="btn-row reveal"><button class="btn on" id="neBtn">▶ 逐层拆解</button></div>
+  <div class="stage reveal" id="neStage"></div>
+  <div class="code-wrap reveal"><pre class="sql">-- 关系除法的 SQL 写法：找不到「我没卖过的商品」= 我卖过全部商品
+SELECT Wname FROM Worker w
+WHERE NOT EXISTS (                      -- ③ 不存在这样的商品…
+  SELECT * FROM Goods g
+  WHERE NOT EXISTS (                    -- ② …使得该职工没卖过它
+    SELECT * FROM Sale s
+    WHERE s.Wno = w.Wno AND s.Gno = g.Gno   -- ① 相关子查询，依赖外层 w
+  )
+);
+
+-- 等价写法：分组计数
+SELECT w.Wname FROM Worker w JOIN Sale s ON w.Wno = s.Wno
+GROUP BY w.Wno, w.Wname
+HAVING COUNT(DISTINCT s.Gno) = (SELECT COUNT(*) FROM Goods);</pre></div>
+  <div class="note cy reveal"><b>用本题数据算一下</b>：Goods 共 12 件商品、6 个厂家，20 条销售记录里覆盖厂家最多的是李海明（4 个）。所以无论口径 A（卖过全部商品）还是口径 B（每个厂家至少卖过一件），<strong>结果都是空集</strong>。空结果也是正确结果，别以为 SQL 写错了 —— 这恰恰是很好的验算点。</div>
+
+  <h3 class="reveal">IN / ANY / ALL / 比较符怎么选（讨论题 3）</h3>
+  <div class="tbl-wrap reveal"><table><thead><tr><th>写法</th><th>语义</th><th>等价形式</th><th>场合</th></tr></thead><tbody>
+    <tr><td>= (SELECT …)</td><td>等于唯一返回值</td><td>—</td><td>标量子查询，任务 12</td></tr>
+    <tr><td>IN</td><td>等于集合中任意一个</td><td>= ANY</td><td>精确枚举，任务 2</td></tr>
+    <tr><td>&gt; ANY</td><td>比某一个大即可</td><td>&gt; MIN(…)</td><td>「比任意一个…大」</td></tr>
+    <tr><td>&gt; ALL</td><td>比全部都大</td><td>&gt; MAX(…)</td><td>任务 14</td></tr>
+    <tr><td>EXISTS</td><td>子查询至少返回一行</td><td>—</td><td>相关子查询判断存在性</td></tr>
+    <tr><td>双重 NOT EXISTS</td><td>不存在「不满足条件的元素」</td><td>关系除法 R ÷ S</td><td>「全部 / 所有」</td></tr>
+  </tbody></table></div>
+  <div class="note rd reveal"><b>两个高频陷阱</b>：① NOT IN 集合含 NULL → 整体结果为空集，改 NOT EXISTS；② 子查询返回空集时 <code>&gt; ALL (空集)</code> 为<strong>真</strong>，而 <code>&gt; (SELECT MAX(...) FROM 空表)</code> 得到 NULL 不成立，两者不完全等价。</div>
+
+  <h3 class="reveal">多表连接 & 自连接（讨论题 1、2）</h3>
+  <div class="grid g2 reveal">
+    <div class="card"><b>JOIN 与 WHERE 连接</b><div class="mini">内连接下 <code>FROM A,B WHERE A.x=B.x</code> 与 <code>A JOIN B ON A.x=B.x</code> 等价；但逗号写法一旦漏条件会<strong>静默产生笛卡尔积且不报错</strong>。JOIN…ON 把连接条件与筛选条件分开，更清晰。多表一律起别名、列名带前缀。</div></div>
+    <div class="card"><b>自连接</b><div class="mini">同一张表必须起<strong>两个不同别名</strong>（w 与 m）；用条件区分角色（<code>m.Wjob='经理'</code>）；必要时 <code>w.Wno &lt;&gt; m.Wno</code> 排除自己；同部门多个经理会产生重复行，按需 DISTINCT。任务 10 就是它。</div></div>
+  </div>
+</section>
+
+<!-- ============ 8 讨论题 ============ -->
+<section id="s8">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 08</div><h2>12 道讨论题 · 翻牌自测</h2>
+  <p>点卡片翻面看答案要点。三页交流讨论区 + 三张自评表的考点都在这里了。</p></div>
+  <div class="grid g3 reveal" id="flipBox"></div>
+  <h3 class="reveal">自评区透露的复习权重</h3>
+  <div class="card reveal">
+    <div class="mini" style="margin-bottom:14px">把三张自评表的星级汇总，★★★★★ 就是必须吃透的核心：</div>
+    <div id="starBox"></div>
+  </div>
+  <div class="note reveal"><b>别被星级骗了</b>：「几种子查询」在项目 5 自评里只有四星半，却包含任务 13 的双重 NOT EXISTS —— 实际难度全章最高。<strong>星级反映课时权重，不等于考试难度。</strong></div>
+</section>
+
+<!-- ============ 9 排错 ============ -->
+<section id="s9">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 09</div><h2>常见错误清单 · 报错时回来对照</h2>
+  <p>按四组归类。左边是踩过的坑，右边是正确做法。</p></div>
+  <div class="grid g2 reveal" id="errBox"></div>
+  <div class="note cy reveal"><b>一条万能排错顺序</b>：先看报错码 → 检查字段名（Wage / Sal 有没有搞混）→ 检查表顺序与外键 → 检查 WHERE 是否漏写 → 检查 NULL 判定 → 检查数据版本（图 4-9 还是图 5-44）。</div>
+</section>
+
+<!-- ============ 10 复习 ============ -->
+<section id="s10">
+  <div class="sec-head reveal"><div class="sec-no">CHAPTER 10</div><h2>复习路径 · 勾一个，进度涨一格</h2>
+  <p>勾选状态会保存在本机浏览器里，下次打开还在。</p></div>
+  <div class="card reveal">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><span>完成进度</span><b id="chkPct" style="color:var(--cy)">0 / 8</b></div>
+    <div class="bar"><i id="chkBar"></i></div>
+    <div class="grid g2" id="chkBox" style="margin-top:18px"></div>
+  </div>
+  <h3 class="reveal">五个必须啃下来的「硬骨头」</h3>
+  <div class="grid g3 reveal" id="boneBox"></div>
+  <div class="note reveal"><b>写实训报告的小建议</b>：每个任务按「题目 → 用到的知识点 → SQL / 表达式 → 运行结果（行数或截图）→ 易错点」五段写，评分点齐全；关系代数题先写中间量 π₃,₄(R)、π₁,₂(S) 再给结果表，步骤分稳拿；遇到教材数据前后不一致，在报告里注明采用的版本。</div>
+</section>
+
+<footer>
+  <div style="font-size:20px;margin-bottom:8px">🎓</div>
+  本页依据 10 页教材实训内容整理 · 覆盖项目 2 ~ 项目 5<br>
+  <span class="mini">配套文件：MySQL数据库实训知识点详解与任务指南.docx（含完整 SQL 脚本与 50 张表格）</span><br>
+  <span class="mini" style="margin-top:8px;display:inline-block">元宝 · 把知识点讲活一点</span>
+</footer>
+</div>
+
+<button id="top" title="回到顶部">↑</button>
+
+<script>
+/* ================= 通用 ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* 代码高亮 + 行号 + 复制 */
+const KW=['SELECT','FROM','WHERE','GROUP','BY','HAVING','ORDER','LIMIT','AS','JOIN','INNER','LEFT','RIGHT','OUTER','CROSS','NATURAL','ON','UNION','ALL','DISTINCT','INSERT','INTO','VALUES','UPDATE','SET','DELETE','TRUNCATE','TABLE','CREATE','DATABASE','IF','NOT','EXISTS','ALTER','ADD','MODIFY','DROP','COLUMN','PRIMARY','KEY','FOREIGN','REFERENCES','CONSTRAINT','UNIQUE','DEFAULT','NULL','IS','AND','OR','IN','BETWEEN','LIKE','REGEXP','ANY','CASE','WHEN','THEN','ELSE','END','USE','CHAR','VARCHAR','INT','DECIMAL','ENUM','DATETIME','UNSIGNED','AUTO_INCREMENT','COALESCE','COUNT','SUM','AVG','MAX','MIN','IFNULL','SHOW','LIKE','DEFAULT','CHARACTER','utf8mb4'];
+const KWRE=new RegExp('\\b('+[...new Set(KW)].join('|')+')\\b','gi');
+function hl(src){
+  return src.split('\n').map(line=>{
+    const cm=line.match(/^(\s*)(--.*)$/);
+    if(cm) return cm[1]+'<span class="c-cmt">'+esc(cm[2])+'</span>';
+    const e=esc(line);
+    return e.replace(/('(?:[^']|'')*')|\b([A-Za-z_][A-Za-z_0-9]*)\b|(\d+(?:\.\d+)?)/g,(all,str,word,num)=>{
+      if(str) return '<span class="c-str">'+str+'</span>';
+      if(num) return '<span class="c-num">'+all+'</span>';
+      if(word && new RegExp('^('+[...new Set(KW)].join('|')+')$','i').test(word)) return '<span class="c-kw">'+word+'</span>';
+      return all;
+    });
+  }).join('\n');
+}
+function initCode(root=document){
+  $$('pre.sql',root).forEach(pre=>{
+    let w=pre.parentNode;
+    const already=w.classList && w.classList.contains('code-wrap');
+    if(!already){
+      w=document.createElement('div'); w.className='code-wrap';
+      pre.parentNode.insertBefore(w,pre); w.appendChild(pre);
+    }
+    const raw = pre.dataset.raw!==undefined ? pre.dataset.raw : pre.textContent;
+    pre.dataset.raw=raw;
+    let ln=$('.ln',w), b=$('.copy',w);
+    if(!ln){ ln=document.createElement('div'); ln.className='ln'; w.appendChild(ln); }
+    if(!b){ b=document.createElement('button'); b.className='copy'; w.appendChild(b); }
+    ln.textContent=raw.split('\n').map((_,i)=>i+1).join('\n');
+    b.textContent='复制';
+    b.onclick=()=>{navigator.clipboard?.writeText(raw).then(()=>{b.textContent='✓ 已复制';setTimeout(()=>b.textContent='复制',1600)}).catch(()=>{b.textContent='请手动复制'})};
+    pre.innerHTML=hl(raw);
+  });
+}
+
+/* 滚动进度 / 导航高亮 / 回顶 */
+const prog=$('#progress'),topBtn=$('#top');
+addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-innerHeight;
+  prog.style.width=(scrollY/h*100)+'%';
+  topBtn.classList.toggle('show',scrollY>600);
+  let cur=''; $$('section').forEach(s=>{if(scrollY>=s.offsetTop-120)cur=s.id});
+  $$('#nav a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));
+},{passive:true});
+topBtn.onclick=()=>scrollTo({top:0,behavior:'smooth'});
+
+/* 主题 */
+$('#theme').onclick=()=>{
+  const light=document.documentElement.dataset.theme==='light';
+  document.documentElement.dataset.theme=light?'dark':'light';
+  $('#theme').textContent=light?'☾':'☀';
+};
+
+/* reveal */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08});
+$$('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4*60)+'ms';io.observe(el)});
+
+/* tabs 通用 */
+function bindTabs(tabSel,attr,cb){
+  $$(tabSel).forEach(b=>b.onclick=()=>{
+    $$(tabSel).forEach(x=>x.classList.remove('on')); b.classList.add('on'); cb(b.dataset[attr]);
+  });
+}
+
+/* ================= 0 三套口径 ================= */
+const modes={
+ A:{t:'A · 概念模式（图 1 实训内容）',b:'中文属性名，用于画 E-R 图、写关系模式。',c:[
+   '员工(员工编号, 姓名, 性别, 年龄, 职务, 工资, 联系电话)',
+   '部门(部门编号, 部门名称, 部门电话)',
+   '商品(商品编号, 商品名称, 类别, 单价, 数量)',
+   '厂家(厂家编号, 厂家名, 地址)',
+   '销售联系自带：销售数量、时间'],tags:['E-R 图','关系模式','中文属性']},
+ B:{t:'B · 简化关系模式（图 2 习题 5）',b:'没有部门表、厂家表、时间列，专用于写关系代数表达式。',c:[
+   '员工(员工编号, 姓名, 性别, 年龄, 职务, 基本工资, 部门编号)',
+   '销售(员工编号, 商品编号, 数量)',
+   '商品(商品编号, 商品名称, 单价, 数量)'],tags:['关系代数','习题 5','无部门表']},
+ C:{t:'C · YGGL 物理模式（图 3-24 / 项目 3-5）',b:'英文缩写字段，所有 SQL 都用它。',c:[
+   'Worker(Wno, Wname, Wsex, Wage年龄, Wjob, Sal工资, Wtel, Dno)',
+   'Department(Dno, Dname, Dtel)　Factory(Fno, Fname, Addr)',
+   'Goods(Gno, Gname, Type, Price, Num, Fno)',
+   'Sale(Wno, Gno, Snum, Sdate)'],tags:['全部 SQL','物理表','注意 Wage≠工资']}
+};
+function showMode(m){
+  const x=modes[m];
+  $('#modePane').innerHTML='<div style="color:var(--head);font-weight:800;font-size:17px">'+x.t+'</div><p class="mini">'+x.b+'</p>'+
+   x.c.map(l=>'<div style="font-family:Consolas,monospace;font-size:12.5px;color:var(--cy);padding:3px 0">'+esc(l)+'</div>').join('')+
+   '<div style="margin-top:10px">'+x.tags.map(t=>'<span class="tag pu">'+t+'</span>').join('')+'</div>';
+}
+bindTabs('#modeTabs .tab','m',showMode); showMode('A');
+
+/* ================= 1 完整性手风琴 ================= */
+$$('[data-acc]').forEach(c=>c.onclick=()=>{
+  const p=$('[data-acc-p="'+c.dataset.acc+'"]'); const open=p.classList.contains('on');
+  $$('.pane[data-acc-p]').forEach(x=>x.classList.remove('on'));
+  if(!open)p.classList.add('on');
+});
+
+/* ================= 2 E-R 图 ================= */
+const erInfo={
+ dept:['部门','部门编号(PK)、部门名称、部门电话','1 端主键会被塞进员工表当外键 Dno'],
+ worker:['员工','员工编号(PK)、姓名、性别、年龄、职务、工资、联系电话','n 端：接收部门编号；与商品是 m:n'],
+ factory:['厂家','厂家编号(PK)、厂家名、地址','1 端主键塞进商品表当外键 Fno'],
+ goods:['商品','商品编号(PK)、商品名称、类别、单价、数量','n 端：接收厂家编号；与员工是 m:n'],
+ belong:['属于（1 : n）','无自带属性','不独立建表 → 部门编号放进员工表'],
+ supply:['供应（1 : n）','无自带属性','不独立建表 → 厂家编号放进商品表'],
+ sale:['销售（m : n）','销售数量、时间','必须独立成销售表，联合主键 = 两端主键'],
+ saleattr:['联系属性','销售数量、时间','跟着「销售」联系一起进销售表，成为普通列 Snum / Sdate']
+};
+$$('.er-node').forEach(n=>{
+  n.addEventListener('mouseenter',()=>{
+    $$('.er-node').forEach(x=>x.classList.remove('hot'));
+    $$('.er-node[data-e="'+n.dataset.e+'"]').forEach(x=>x.classList.add('hot'));
+    const d=erInfo[n.dataset.e];
+    $('#er-info').innerHTML='<b style="color:var(--head)">'+d[0]+'</b> ｜ 属性：'+d[1]+'<br><span class="mini">→ 转换去向：'+d[2]+'</span>';
+  });
+});
+$('#badBtn').onclick=()=>{$('#badBox').style.cssText='box-shadow:0 0 0 3px var(--rd)';$('#goodBox').style.boxShadow='none'};
+$('#goodBtn').onclick=()=>{$('#goodBox').style.cssText='box-shadow:0 0 0 3px var(--gr)';$('#badBox').style.boxShadow='none'};
+
+/* ================= 3 关系模式落卡 ================= */
+const schemas=[
+ {n:'部门',d:'部门编号 PK、部门名称、部门电话',tag:'独立实体',c:'var(--cy)'},
+ {n:'厂家',d:'厂家编号 PK、厂家名、地址',tag:'独立实体',c:'var(--cy)'},
+ {n:'员工',d:'员工编号 PK、姓名… + 部门编号 FK',tag:'1:n 落在 n 端',c:'var(--pu)'},
+ {n:'商品',d:'商品编号 PK、名称… + 厂家编号 FK',tag:'1:n 落在 n 端',c:'var(--or)'},
+ {n:'销售',d:'PK(员工编号, 商品编号) + 销售数量、时间；两个 FK',tag:'m:n 独立成表',c:'var(--gr)'}
+];
+function buildSchemas(){
+  $('#schemaBox').innerHTML='';
+  schemas.forEach((s,i)=>setTimeout(()=>{
+    const d=document.createElement('div');
+    d.className='card';d.style.cssText='animation:fadeUp .6s both;border-left:3px solid '+s.c;
+    d.innerHTML='<span class="tag" style="color:'+s.c+'">'+s.tag+'</span><h4 style="color:var(--head);font-size:17px;margin:6px 0">'+s.n+'表</h4><div class="mini">'+s.d+'</div>';
+    $('#schemaBox').appendChild(d);
+  },i*260));
+}
+$('#buildBtn').onclick=buildSchemas; $('#resetBtn').onclick=()=>$('#schemaBox').innerHTML='<div class="mini">点「开始转换」，5 张关系模式会依次落下 👆</div>';
+$('#schemaBox').innerHTML='<div class="mini">点「开始转换」，5 张关系模式会依次落下 👆</div>';
+
+/* ================= 4 关系代数演算台 ================= */
+const calc={
+ 1:{t:'(1) π₃,₄(R) ∪ π₁,₂(S)',e:'并集：把两个集合合并并去重',
+   steps:['π₃,₄(R) = {(C1,D1), (C2,D2), (C3,D3)}','π₁,₂(S) = {(C1,D1), (C2,D2)}','(C1,D1)、(C2,D2) 已存在 → 补入 (C3,D3)','结果共 3 行'],
+   head:['C','D'],rows:[['C1','D1'],['C2','D2'],['C3','D3']],extra:''},
+ 2:{t:'(2) π₃,₄(R) ∩ π₁,₂(S)',e:'交集：只保留两者共有的元组',
+   steps:['两个中间量仍如上','共同出现的只有 (C1,D1) 与 (C2,D2)','(C3,D3) 在 S 中不存在 → 剔除','结果共 2 行'],
+   head:['C','D'],rows:[['C1','D1'],['C2','D2']],extra:''},
+ 3:{t:'(3) π₃,₄(R) − π₁,₂(S)',e:'差集：从前者删掉后者出现过的行',
+   steps:['从 π₃,₄(R) 中删掉 (C1,D1)、(C2,D2)','只剩 (C3,D3)','⚠️ 差运算不满足交换律：反过来写结果为空集','结果共 1 行'],
+   head:['C','D'],rows:[['C3','D3']],extra:''},
+ 4:{t:'(4) σ_{A=\'A2\'}(R)',e:'选择：水平过滤，不丢列、不去重',
+   steps:['逐行检查 A 列取值','A1 开头的前 3 行 → 淘汰','A2 开头的第 4、5 行 → 保留','A3 开头的最后 1 行 → 淘汰','结果 2 行，仍是 4 列 A,B,C,D'],
+   head:['A','B','C','D'],rows:[['A2','B2','C1','D1'],['A2','B2','C2','D2']],extra:''},
+ 5:{t:'(5) R ⋈ S（自然连接）',e:'按公共列 (C, D) 逐行配对，公共列只留一份 → 5 列',
+   steps:['先算笛卡尔积：6 × 3 = 18 行','再用 R.C=S.C 且 R.D=S.D 筛选','R 的 (C3,D3) 在 S 中找不到匹配 → 丢弃','S 的 (C2,D2) 有 E2、E3 两行 → 每条左行复制出 2 行','合计 7 行，列为 A,B,C,D,E'],
+   head:['A','B','C','D','E'],
+   rows:[['A1','B1','C1','D1','E1'],['A1','B1','C2','D2','E2'],['A1','B1','C2','D2','E3'],['A2','B2','C1','D1','E1'],['A2','B2','C2','D2','E2'],['A2','B2','C2','D2','E3'],['A3','B3','C1','D1','E1']],
+   extra:'pair'},
+ 6:{t:'(6) R ÷ S',e:'除法：找「与 S 中每一个 (C,D) 都配过对」的 (A,B)',
+   steps:['① 求 S 在公共属性上的投影：π_{C,D}(S) = {(C1,D1), (C2,D2)}','② 按 (A,B) 分组，检查每组覆盖了哪些 (C,D)','③ (A1,B1) 覆盖 C1D1、C2D2、C3D3 → 全部包含 ✓','④ (A2,B2) 覆盖 C1D1、C2D2 → 全部包含 ✓','⑤ (A3,B3) 只有 C1D1 → 缺 C2D2 ✗','口诀：全集的像 − 不合格的像'],
+   head:['A','B'],rows:[['A1','B1'],['A2','B2']],extra:'div'}
+};
+function renderCalc(n){
+  const c=calc[n];
+  $('#calcTitle').textContent=c.t; $('#calcExpr').textContent=c.e;
+  const st=$('#calcSteps'); st.innerHTML='';
+  c.steps.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='line';d.style.animationDelay=(i*.16)+'s';d.innerHTML='<b>'+(i+1)+'.</b> '+esc(s);st.appendChild(d);
+  });
+  let html='<div class="tbl-wrap"><table><thead><tr>'+c.head.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';
+  c.rows.forEach((r,i)=>{html+='<tr class="pop" style="animation-delay:'+(c.steps.length*.16+i*.11+.25)+'s"><td>'+r.join('</td><td>')+'</td></tr>'});
+  html+='</tbody></table></div><div class="mini">✅ 结果共 <b style="color:var(--gr)">'+c.rows.length+'</b> 行</div>';
+  $('#calcResult').innerHTML=html;
+  const ex=$('#calcExtra');ex.innerHTML='';
+  if(c.extra==='pair'){
+    const b=document.createElement('button');b.className='btn on';b.textContent='▶ 播放配对过程';ex.appendChild(b);
+    b.onclick=()=>{
+      const pairs=['R①(A1,B1,C1,D1) × S①(C1,D1,E1) → ✓ 1 行','R②(A1,B1,C2,D2) × S②(C2,D2,E2) → ✓','R②(A1,B1,C2,D2) × S③(C2,D2,E3) → ✓ 同一左行复制成 2 行','R③(A1,B1,C3,D3) × S 全部 → ✗ 无匹配，被丢弃','R④ / R⑤ (A2,B2…) → 各产出 3 行','R⑥(A3,B3,C1,D1) × S① → ✓ 1 行','合计 1+2+0+3+1 = 7 行'];
+      st.innerHTML='';pairs.forEach((s,i)=>{const d=document.createElement('div');d.className='line';d.style.animationDelay=(i*.19)+'s';d.innerHTML=(s.includes('✗')?'<span style="color:var(--rd)">':'<span>')+esc(s)+'</span>';st.appendChild(d)});
+    };
+  }
+  if(c.extra==='div'){
+    const b=document.createElement('button');b.className='btn on';b.textContent='▶ 逐组验算「全部」';ex.appendChild(b);
+    b.onclick=()=>{
+      const g=[['(A1,B1)','C1D1 ✓ · C2D2 ✓ · C3D3 ✓','全部覆盖 → 保留','ok'],['(A2,B2)','C1D1 ✓ · C2D2 ✓','全部覆盖 → 保留','ok'],['(A3,B3)','C1D1 ✓ · C2D2 ✗','缺一组 → 淘汰','no']];
+      let h='<div class="tbl-wrap"><table><thead><tr><th>分组</th><th>覆盖的 (C,D)</th><th>判定</th></tr></thead><tbody>';
+      g.forEach((r,i)=>h+='<tr class="pop" style="animation-delay:'+(i*.18)+'s"><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="'+r[3]+'">'+r[2]+'</td></tr>');
+      $('#calcResult').innerHTML=h+'</tbody></table></div>';
+    };
+  }
+  initCode($('#calcResult'));
+}
+bindTabs('#calcTabs .tab','c',renderCalc); renderCalc(1);
+
+/* ================= 5 建表 ================= */
+function charDemo(type){
+  const val='D01',box=$('#charDemo');box.innerHTML='';
+  for(let i=0;i<6;i++){
+    const c=document.createElement('span');c.className='cell'+(type==='char'&&i>=3?' pad':'');
+    c.textContent=i<3?val[i]:'␣';c.style.animation='fadeUp .4s both';c.style.animationDelay=(i*.07)+'s';box.appendChild(c);
+  }
+  const t=document.createElement('span');t.className='mini';t.style.marginLeft='10px';
+  t.textContent=type==='char'?'→ 占满 6 格，后 3 格是补的空格':'→ 只占 3 格 + 1~2 字节长度前缀';box.appendChild(t);
+  $('#charTip').innerHTML=type==='char'
+    ? '<b>CHAR(6)</b>：无论内容多短都占 6 个字符，读取时按固定偏移定位，速度快；比较时尾部空格会被忽略。适合 Dno / Wno / Gno / Fno / 电话这类<strong>长度固定</strong>的编号。'
+    : '<b>VARCHAR(6)</b>：按实际长度 3 个字符存，另用 1~2 字节记录长度，<strong>省空间</strong>但要先读长度。适合姓名、地址、商品名、职务这类长短差异大的文本。';
+}
+$('#charBtn').onclick=()=>{$('#charBtn').classList.add('on');$('#varcharBtn').classList.remove('on');charDemo('char')};
+$('#varcharBtn').onclick=()=>{$('#varcharBtn').classList.add('on');$('#charBtn').classList.remove('on');charDemo('varchar')};
+charDemo('char');
+
+const depSteps=['① Department（部门表）· 无外键，最先建','② Factory（厂家表）· 无外键，最先建','③ Worker（职工表）· 外键 Dno → Department','④ Goods（商品表）· 外键 Fno → Factory','⑤ Sale（销售表）· 外键 Wno → Worker、Gno → Goods','✅ 顺序：Department / Factory → Worker / Goods → Sale'];
+function playDep(){
+  const box=$('#depBox');box.innerHTML='';
+  depSteps.forEach((s,i)=>setTimeout(()=>{
+    const d=document.createElement('div');d.className='line';d.style.cssText='opacity:0;animation:fadeUp .5s forwards;color:'+(i===5?'var(--gr)':'var(--txt)');
+    d.textContent=s;box.appendChild(d);
+  },i*320));
+}
+$('#depBtn').onclick=playDep;playDep();
+
+const tables={
+ Department:[['字段名','类型','可空','约束','说明'],['Dno','CHAR(3)','否','主键','部门编号'],['Dname','VARCHAR(20)','否','取值唯一','部门名称'],['Dtel','CHAR(11)','是','—','部门电话']],
+ Worker:[['字段名','类型','可空','约束','说明'],['Wno','CHAR(4)','否','主键','职工号'],['Wname','VARCHAR(10)','否','—','职工名'],['Wsex','ENUM','是','—','性别'],['Wage','INT','是','—','年龄'],['Wjob','VARCHAR(20)','是','—','职务'],['Sal','DECIMAL(6,1)','是','任务10 加 DEFAULT 5000','基本工资'],['Wtel','CHAR(11)','是','—','手机号'],['Dno','CHAR(3)','是','外键 → Department.Dno','所在部门编号']],
+ Factory:[['字段名','类型','可空','约束','说明'],['Fno','CHAR(4)','否','主键','厂家编号'],['Fname','VARCHAR(30)','否','取值唯一','厂家名'],['Addr','VARCHAR(30)','是','—','地址']],
+ Goods:[['字段名','类型','可空','约束','说明'],['Gno','CHAR(6)','否','主键','商品编号'],['Gname','VARCHAR(30)','否','—','商品名'],['Type','VARCHAR(30)','是','—','类别'],['Price','DECIMAL(6,2)','是','UNSIGNED 无符号','单价'],['Num','INT','是','DEFAULT 0','数量'],['Fno','CHAR(4)','否','外键 → Factory.Fno','厂家编号']],
+ Sale:[['字段名','类型','可空','约束','说明'],['Wno','CHAR(4)','否','联合主键 + 外键 → Worker','职工编号'],['Gno','CHAR(6)','否','联合主键 + 外键 → Goods','商品编号'],['Snum','INT','—','—','销售数量'],['Sdate','DATETIME','—','—','时间']]
+};
+function showTbl(t){
+  const d=tables[t];let h='<thead><tr>'+d[0].map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>';
+  d.slice(1).forEach((r,i)=>h+='<tr class="pop" style="animation-delay:'+(i*.06)+'s"><td>'+r.join('</td><td>')+'</td></tr>');
+  $('#tblPane').innerHTML=h+'</tbody>';
+}
+bindTabs('#tblTabs .tab','t',showTbl);showTbl('Department');
+
+const alters=[
+ {n:'9 · 加 Hobby',d:'ADD 加列。ENUM 列表外的取值会被拒（严格模式）。',s:"ALTER TABLE Worker ADD Hobby ENUM('音乐','阅读','运动');"},
+ {n:'10 · Sal 默认值',d:'设默认值用 MODIFY 必须把原类型完整重写一遍，否则类型会被意外改掉；ALTER COLUMN … SET DEFAULT 更安全。',s:"ALTER TABLE Worker MODIFY Sal DECIMAL(6,1) DEFAULT 5000;\n-- 或：ALTER TABLE Worker ALTER COLUMN Sal SET DEFAULT 5000;"},
+ {n:'11 · 删主键',d:'删主键前确认没有自增列依赖它，且没有子表外键引用该列。',s:"ALTER TABLE Goods DROP PRIMARY KEY;"},
+ {n:'12 · 重设主键',d:'把 Gno 重新设为主键，配合任务 11 演示「先删再加」。',s:"ALTER TABLE Goods ADD PRIMARY KEY(Gno);"},
+ {n:'13 · 删 Hobby',d:'DROP COLUMN 会连同数据一起删除，不可逆。',s:"ALTER TABLE Worker DROP COLUMN Hobby;"},
+ {n:'14 · 复制结构',d:'LIKE 复制列定义、主键、索引，不复制数据与外键。',s:"CREATE TABLE Goodscopy LIKE Goods;"},
+ {n:'15 · 删表',d:'DROP TABLE 不可逆，删前先 SHOW TABLES 确认对象名。',s:"DROP TABLE Goodscopy;"}
+];
+$('#alterBtns').innerHTML=alters.map((a,i)=>'<button class="btn'+(i===0?' on':'')+'" data-a="'+i+'">'+a.n+'</button>').join('');
+function showAlter(i){
+  const a=alters[i];$('#alterTitle').textContent='任务 '+a.n;$('#alterDesc').textContent=a.d;
+  $('#alterSql').dataset.raw=a.s;initCode($('#alterSql').parentElement);
+}
+$$('#alterBtns .btn').forEach(b=>b.onclick=()=>{$$('#alterBtns .btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');showAlter(+b.dataset.a)});
+showAlter(0);
+
+/* ================= 6 更新 ================= */
+const nullDemo={
+ eq:['WHERE Wjob = NULL','UNKNOWN','W003 张菲璐 → 判定 UNKNOWN，WHERE 只留 TRUE → <b style="color:var(--rd)">0 行命中</b>','❌ 错误写法'],
+ is:['WHERE Wjob IS NULL','TRUE','W003 张菲璐 → Wjob 确实是 NULL → <b style="color:var(--gr)">命中 1 行</b>','✅ 正确'],
+ not:['WHERE Wjob IS NOT NULL','TRUE（其余 12 行）','W001、W002、W004…W013 → <b style="color:var(--gr)">命中 12 行</b>，W003 被排除','✅ 正确']
+};
+$$('#nullBtns .btn').forEach(b=>b.onclick=()=>{
+  $$('#nullBtns .btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  const d=nullDemo[b.dataset.null];
+  $('#nullStage').innerHTML='<div class="line" style="animation:fadeUp .4s forwards"><code style="color:var(--cy)">'+esc(d[0])+'</code> → 判定结果 <b style="color:'+(d[1]==='UNKNOWN'?'var(--rd)':'var(--gr)')+'">'+d[1]+'</b></div>'+
+   '<div class="line" style="animation:fadeUp .4s .15s forwards">'+d[2]+'</div>'+
+   '<div class="line" style="animation:fadeUp .4s .3s forwards">'+d[3]+'　｜　SQL 三值逻辑：TRUE / FALSE / <b>UNKNOWN</b></div>';
+});
+
+const updBase=[
+ {id:'W001',name:'王鹏飞',age:34,job:'职工',sal:6200,price:null,type:null},
+ {id:'W003',name:'张菲璐',age:25,job:'（NULL）',sal:4100,price:null,type:null},
+ {id:'W007',name:'张伟',age:50,job:'总经理',sal:15000,price:null,type:null},
+ {id:'G01001',name:'海尔波轮',age:null,job:null,sal:null,price:3200,type:'洗衣机'},
+ {id:'G01003',name:'TCL 波轮',age:null,job:null,sal:null,price:2580,type:'洗衣机'},
+ {id:'G02001',name:'小米液晶',age:null,job:null,sal:null,price:6680,type:'电视机'}
+];
+let updData=JSON.parse(JSON.stringify(updBase));
+const updInfo={
+ '9':{sql:'UPDATE Worker SET Wage = Wage + 1;',tip:'无条件 → 全表更新。所有职工年龄 +1（商品行不受影响）。'},
+ '10':{sql:"UPDATE Goods SET Price = Price - 200 WHERE Type = '洗衣机';",tip:'只有类别为「洗衣机」的行降价 200；电视机不动。'},
+ '11':{sql:"UPDATE Worker SET Sal = Sal + 500 WHERE Wjob LIKE '%经理%';",tip:'LIKE 会同时命中「经理」和「总经理」→ 张伟(总经理) 也加 500。若只要「经理」用 = \'经理\'。'},
+ '12':{sql:'UPDATE Worker SET Wage = Wage + 2 WHERE Wjob IS NULL;',tip:'必须用 IS NULL；只有 W003 命中，年龄 25 → 27。'},
+ 'reset':{sql:'-- 还原初始数据',tip:'已还原到图 5-44 初始值。'}
+};
+function renderUpd(key){
+  $('#updSql').textContent=updInfo[key].sql;$('#updTip').innerHTML='💡 '+updInfo[key].tip;
+  let h='<thead><tr><th>编号</th><th>名称</th><th>年龄 Wage</th><th>职务</th><th>工资 Sal</th><th>单价 Price</th><th>类别</th></tr></thead><tbody>';
+  updData.forEach(r=>h+='<tr><td>'+r.id+'</td><td>'+r.name+'</td><td class="num">'+(r.age??'—')+'</td><td>'+(r.job??'—')+'</td><td class="num">'+(r.sal??'—')+'</td><td class="num">'+(r.price??'—')+'</td><td>'+(r.type??'—')+'</td></tr>');
+  $('#updTable').innerHTML=h+'</tbody>';
+}
+$$('#updBtns .btn').forEach(b=>b.onclick=()=>{
+  $$('#updBtns .btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  const k=b.dataset.up;
+  if(k==='reset'){updData=JSON.parse(JSON.stringify(updBase));renderUpd(k);return}
+  updData.forEach(r=>{
+    if(k==='9'&&r.age!==null)r.age+=1;
+    if(k==='10'&&r.type==='洗衣机')r.price-=200;
+    if(k==='11'&&r.job&&r.job.indexOf('经理')>=0)r.sal+=500;
+    if(k==='12'&&r.job==='（NULL）')r.age+=2;
+  });
+  renderUpd(k);
+});
+renderUpd('reset');
+
+/* ================= 7 查询 ================= */
+const flow=[
+ ['FROM / JOIN','确定数据来源，生成中间结果集'],
+ ['WHERE','对每一行做行级过滤；此处不能用聚合函数、不能用 SELECT 别名'],
+ ['GROUP BY','把剩余行切成一组一组'],
+ ['HAVING','对分组结果过滤，可以用聚合函数'],
+ ['SELECT','计算输出列与表达式；别名到这一步才生效'],
+ ['DISTINCT','去重'],
+ ['ORDER BY','排序，唯一能使用 SELECT 别名的地方'],
+ ['LIMIT','截取最终行数']
+];
+let flowIdx=0;
+function renderFlow(){
+  $('#flowBox').innerHTML=flow.map((f,i)=>'<div class="flowstep'+(i<flowIdx?' on':'')+'"><span class="n">'+(i+1)+'</span><b style="color:var(--head);min-width:110px">'+f[0]+'</b><span class="mini">'+f[1]+'</span></div>').join('')+
+   '<div class="mini" style="margin-top:10px;color:var(--cy)">'+(flowIdx===0?'点「下一步」开始 ▶':flowIdx>=flow.length?'✅ 完成！记住：书写顺序 ≠ 执行顺序。':'已点亮 '+flowIdx+' / '+flow.length+' 步')+'</div>';
+}
+$('#flowBtn').onclick=()=>{if(flowIdx<flow.length)flowIdx++;renderFlow()};
+$('#flowReset').onclick=()=>{flowIdx=0;renderFlow()};renderFlow();
+
+const joinRows=[
+ ['G01001','海尔波轮',15,'✓ 匹配'],['G01002','海尔滚筒','NULL','⚠ 补 NULL'],
+ ['G01003','TCL 波轮',70,'✓ 匹配'],['G02001','小米液晶','NULL','⚠ 补 NULL'],
+ ['G02003','TCL 液晶',51,'✓ 匹配'],['G04005','美的双开门',30,'✓ 匹配']
+];
+$('#joinBtn').onclick=()=>{
+  let h='<thead><tr><th>左表 Gno</th><th>商品名（全部保留）</th><th>右表 SUM(Snum)</th><th>状态</th></tr></thead><tbody>';
+  joinRows.forEach((r,i)=>h+='<tr class="pop" style="animation-delay:'+(i*.16)+'s"><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+(r[2]==='NULL'?'<span class="chip nullv">NULL</span>':'<b style="color:var(--gr)">'+r[2]+'</b>')+'</td><td class="'+(r[2]==='NULL'?'no':'ok')+'">'+r[3]+'</td></tr>');
+  $('#joinTable').innerHTML=h+'</tbody>';
+  $('#joinTip').innerHTML='💡 左表 12 件商品<strong>一件都不能少</strong>。没卖过的海尔滚筒、小米液晶，右表补 NULL；再用 <code>COALESCE(SUM(s.Snum),0)</code> 把 NULL 显示成 0，才是「每个商品的销售总和」。若用 INNER JOIN，这两行就消失了。';
+};
+
+const QS=[
+ {n:1,t:"商品名含「海尔」",pt:'模糊查询 LIKE %…%',sql:"SELECT * FROM Goods\nWHERE Gname LIKE '%海尔%';",res:['海尔波轮 / 海尔滚筒 / 海尔挂式 / 海尔双开门 / 海尔单开门','共 5 行；注意「TCL 波轮」不含「海尔」，不计入']},
+ {n:2,t:'职务为「经理」或「总经理」',pt:'集合条件 IN（精确枚举）',sql:"SELECT Wname, Wjob FROM Worker\nWHERE Wjob IN ('经理','总经理');",res:['李海明 经理','周雨嫣 经理','张伟 总经理','吴娜丽 经理','许阳 经理','共 5 行；用 LIKE \'%经理%\' 也能命中，但会把「区域经理」之类也算进来']},
+ {n:3,t:'年龄超过 30 岁的男职工',pt:'多条件 AND',sql:"SELECT Wname, Wsex, Wjob FROM Worker\nWHERE Wage > 30 AND Wsex = '男';",res:['王鹏飞 34 职工','李海明 45 经理','张伟 50 总经理','杨光磊 32 职工','何铭辰 35 职工','许阳 46 经理','共 6 行（图 5-44 原始年龄，未叠加项目 4 的 +1 更新）']},
+ {n:4,t:'还没有职务的职工',pt:'空值判定 IS NULL',sql:'SELECT * FROM Worker\nWHERE Wjob IS NULL;',res:['张菲璐（W003，女 25，工资 4100，D02）','共 1 行；写成 = NULL 会得到 0 行']},
+ {n:5,t:'年龄 30~40 岁',pt:'BETWEEN 含两端',sql:'SELECT * FROM Worker\nWHERE Wage BETWEEN 30 AND 40;',res:['王鹏飞 34、周雨嫣 40、赵英 36、刘婷雯 30、杨光磊 32、何铭辰 35','共 6 行；30 和 40 都被包含']},
+ {n:6,t:'男职工的平均年龄',pt:'单行聚合 AVG',sql:"SELECT AVG(Wage) AS 平均年龄\nFROM Worker WHERE Wsex = '男';",res:['8 名男职工年龄之和 297 ÷ 8 = 37.125','聚合函数自动忽略 NULL；AVG 的分母是非空值个数']},
+ {n:7,t:'每个部门基本工资的平均值',pt:'GROUP BY + AVG',sql:'SELECT Dno, AVG(Sal) AS 平均工资\nFROM Worker GROUP BY Dno;\n\n-- 想显示部门名：\nSELECT d.Dname, AVG(w.Sal)\nFROM Worker w JOIN Department d ON w.Dno = d.Dno\nGROUP BY d.Dno, d.Dname;',res:['D01 → 12100.00（9200、15000）','D02 → 6450.00（6200、4100、9400、6100）','D03 → 6800.00（5800、9000、6200、6200）','D04 → 7000.00（5800、6000、9200）']},
+ {n:8,t:'职工所在部门（姓名/职务/部门名/电话）',pt:'内连接 JOIN … ON',sql:'SELECT w.Wname, w.Wjob, d.Dname, d.Dtel\nFROM Worker w JOIN Department d ON w.Dno = d.Dno;',res:['13 行；Dno 为 NULL 的职工不会出现在内连接结果里','多表一律起别名、列名带前缀，避免同名列歧义']},
+ {n:9,t:'每个商品的销售总和',pt:'LEFT JOIN 保行 + COALESCE',sql:'SELECT g.Gname, COALESCE(SUM(s.Snum),0) AS 销售总和\nFROM Goods g LEFT JOIN Sale s ON g.Gno = s.Gno\nGROUP BY g.Gno, g.Gname;',res:['海尔波轮 15、TCL 波轮 70、TCL 液晶 51、华为液晶 25、格力立式 57','海尔挂式 56、海尔双开门 68、海尔单开门 18、美的双开门 30','海尔滚筒 0、小米液晶 0、TCL 滚筒 0 ← 没卖过，靠 LEFT JOIN 保住']},
+ {n:10,t:'职工所在部门的经理',pt:'自连接（同一张表两个别名）',sql:"SELECT w.Wname AS 职工姓名, w.Dno, m.Wname AS 经理姓名\nFROM Worker w\nJOIN Worker m ON w.Dno = m.Dno AND m.Wjob = '经理';",res:['w = 全体职工，m = 只取经理行','D01 的经理是周雨嫣吗？按图 5-44 她属 D03；D01 只有张伟（总经理）','同部门多个经理会产生重复行，按需 DISTINCT']},
+ {n:11,t:'所有职工（含没销售的）的销售信息',pt:'一路 LEFT JOIN',sql:'SELECT w.Wname, d.Dname, g.Gname, s.Snum\nFROM Worker w\nLEFT JOIN Department d ON w.Dno = d.Dno\nLEFT JOIN Sale s       ON w.Wno = s.Wno\nLEFT JOIN Goods g      ON s.Gno = g.Gno;',res:['W009~W013 没有销售记录，Snum / Gname 显示为 NULL','任何一环换成 INNER JOIN，这些职工就会消失']},
+ {n:12,t:'与李海明同部门的其他职工',pt:'标量子查询 + 排除自身',sql:"SELECT w.Wname, w.Wage, d.Dname\nFROM Worker w JOIN Department d ON w.Dno = d.Dno\nWHERE w.Dno = (SELECT Dno FROM Worker WHERE Wname = '李海明')\n  AND w.Wname <> '李海明';",res:['图 5-44 口径：李海明在 D01，同部门另一人是张伟（50，人事部）','共 1 行；子查询必须返回单值，且别忘排除本人']},
+ {n:13,t:'销售了所有厂家商品的职工',pt:'双重 NOT EXISTS / 关系除法',sql:'SELECT Wname FROM Worker w\nWHERE NOT EXISTS (\n  SELECT * FROM Goods g WHERE NOT EXISTS (\n    SELECT * FROM Sale s WHERE s.Wno = w.Wno AND s.Gno = g.Gno ));',res:['本题数据下结果为空集 —— 12 件商品 / 6 个厂家无人全覆盖','覆盖厂家最多的是李海明（4 个）','空结果也是正确结果，正好用来验算']},
+ {n:14,t:'比 D02 部门所有职工年龄都大',pt:'> ALL / > MAX',sql:"SELECT w.Wname, w.Wage, d.Dname\nFROM Worker w JOIN Department d ON w.Dno = d.Dno\nWHERE w.Wage > ALL (SELECT Wage FROM Worker WHERE Dno = 'D02');\n-- 等价：WHERE w.Wage > (SELECT MAX(Wage) FROM Worker WHERE Dno='D02');",res:['D02 部门年龄：34、25、48、32 → MAX = 48','比 48 大的只有：张伟，50，人事部','共 1 行']}
+];
+$('#qTabs').innerHTML=QS.map((q,i)=>'<button class="tab'+(i===0?' on':'')+'" data-q="'+i+'">'+q.n+'</button>').join('');
+function showQ(i){
+  const q=QS[i];$('#qTitle').textContent='任务 '+q.n+' · '+q.t;
+  $('#qPoint').innerHTML='<span class="tag cy">'+q.pt+'</span>';
+  $('#qSql').dataset.raw=q.sql;initCode($('#qSql').parentElement);
+  $('#qResult').innerHTML='<div class="mini" style="margin-top:10px;color:var(--head);font-weight:700">运行结果（按图 5-44 口径）</div>'+
+   q.res.map((r,j)=>'<div class="line" style="animation:fadeUp .4s '+(j*.09)+'s forwards;padding:3px 0;font-size:13px">· '+esc(r)+'</div>').join('');
+}
+$$('#qTabs .tab').forEach(b=>b.onclick=()=>{$$('#qTabs .tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');showQ(+b.dataset.q)});
+showQ(0);
+
+const neSteps=[
+ '① 最内层：对当前职工 w 和当前商品 g，问「Sale 里有没有 (w.Wno, g.Gno) 这条记录？」',
+ '② 中层 NOT EXISTS：如果没有 → 说明「w 没卖过 g」，这个 g 会被挑出来',
+ '③ 外层 NOT EXISTS：如果<strong>一个这样的 g 都找不到</strong> → 说明「不存在 w 没卖过的商品」',
+ '④ 翻译成人话：<strong>w 卖过所有商品</strong>。这正是第 4 章 R ÷ S 的 SQL 版本',
+ '⑤ 验算：本题 12 件商品、20 条销售记录，无人全覆盖 → 结果为空集 ✅'
+];
+$('#neBtn').onclick=()=>{
+  const st=$('#neStage');st.innerHTML='';
+  neSteps.forEach((s,i)=>setTimeout(()=>{
+    const d=document.createElement('div');d.className='line';d.style.animation='fadeUp .55s forwards';d.innerHTML=s;st.appendChild(d);
+  },i*420));
+};
+
+/* ================= 8 翻牌 & 星级 ================= */
+const flips=[
+ ['项目2 · 1','关系模型的三要素？','数据结构（二维表）、数据操作（关系代数 / SQL）、完整性约束（实体 / 参照 / 用户定义）。'],
+ ['项目2 · 2','完整性规则有哪些？举例','实体：Wno 非空唯一；参照：Worker.Dno 必须是已存在部门；用户定义：ENUM、UNIQUE、UNSIGNED、DEFAULT。'],
+ ['项目2 · 3','等值连接与自然连接？','等值连接显式指定 A=B、保留重复列；自然连接自动按同名列等值并去重列；后者是前者特例，无公共属性时退化为笛卡尔积。'],
+ ['项目3 · 1','CHAR 与 VARCHAR 怎么选？','定长编号 / 电话用 CHAR（快、整齐）；长短差异大的姓名 / 地址 / 商品名用 VARCHAR（省空间）。'],
+ ['项目4 · 1','插入记录有哪几种方法？','单行 VALUES、多行 VALUES、INSERT…SELECT、LOAD DATA / 图形导入。批量多行 VALUES 最简单方便。'],
+ ['项目4 · 2','默认值、自增注意什么？','省略列或写 DEFAULT 才触发默认值；NULL ≠ 默认值；自增不手动填、批量插入只返首行 ID、不保证连续。'],
+ ['项目4 · 3','何时使用条件语句？','只要不是全表改就必须 WHERE；先 SELECT 预览命中行再 UPDATE；条件可用比较 / BETWEEN / IN / LIKE / IS NULL 组合。'],
+ ['项目4 · 4','空值条件如何匹配？','IS NULL / IS NOT NULL；= NULL 恒为 UNKNOWN 匹配不到；可用 &lt;=&gt; 做空安全比较。'],
+ ['项目4 · 5','删除时模糊条件怎么用？','DELETE … WHERE 列 LIKE \'%…%\' / NOT LIKE / REGEXP / BETWEEN；删前先 SELECT 预览。'],
+ ['项目4 · 6','TRUNCATE 与 DELETE 区别？','DDL vs DML；整表清空 vs 可带 WHERE；不可回滚 vs 可回滚；自增归零 vs 保留；触发器与外键行为不同。'],
+ ['项目5 · 1','JOIN 与 WHERE 连接注意什么？','内连接两者等价；JOIN…ON 更清晰、防漏写笛卡尔积；外连接必须用 ON，右表条件写进 WHERE 会退化成内连接；多表起别名。'],
+ ['项目5 · 2/3','自连接 & ANY / ALL','自连接必须两个别名、用条件区分角色、防重复行；比较符配标量子查询、IN 精确枚举、ANY 比某一个、ALL 比全部、NOT IN 遇 NULL 有坑。']
+];
+$('#flipBox').innerHTML=flips.map((f,i)=>'<div class="flip"><div class="flip-in"><div class="face front"><div class="qnum">'+f[0]+'</div><b>'+f[1]+'</b><div class="tip">👆 点击翻面看答案</div></div><div class="face back">'+f[2]+'</div></div></div>').join('');
+$$('.flip').forEach(c=>c.onclick=()=>c.classList.toggle('flipped'));
+
+const stars=[
+ ['E-R 模型三要素及绘制方法',5],['E-R → 关系模型转换方法',5],['选择 / 投影 / 除 / 连接',5],
+ ['INSERT 插入语句',5],['UPDATE（无条件与有条件）',5],['DELETE 删除语句',5],
+ ['多表连接查询',5],['分组与聚合函数查询',5],['几种子查询',4.5],
+ ['关系模型重要概念',4],['并交差笛卡尔积',4],['TRUNCATE',3],['简单连接查询',4]
+];
+$('#starBox').innerHTML=stars.map(s=>'<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)"><span style="flex:1;font-size:13px">'+s[0]+'</span><span style="color:var(--or);font-size:13px;white-space:nowrap">'+'★'.repeat(Math.floor(s[1]))+(s[1]%1?'☆':'')+'</span></div>').join('');
+
+/* ================= 9 排错 ================= */
+const errs=[
+ ['建模','把 1:n 也单独建表 → 冗余；把 m:n 塞进某一端 → 违反 1NF','1:n 主键落 n 端；m:n 独立成表'],
+ ['代数','忘 π 自动去重，π₃,₄(R) 算成 6 行','关系是集合，投影后 3 行'],
+ ['代数','自然连接结果算成 7 列、或漏掉一对多复制行','公共列只留一份 = 5 列；(C2,D2) 有 2 个 E → 共 7 行'],
+ ['代数','差集写反方向；除法漏掉「S 先投影」','R−S ≠ S−R；先算 π_{C,D}(S)'],
+ ['建表','外键列与主键类型 / 长度不一致','Dno 与父表同为 CHAR(3)'],
+ ['建表','用 FLOAT 存工资；UNSIGNED 列减成负数','DECIMAL 精确定点；减法前检查范围'],
+ ['建表','联合主键写成两个 PRIMARY KEY','PRIMARY KEY(Wno, Gno)'],
+ ['DML','先插 Sale 再插 Worker；漏写 WHERE 全表被改','先父后子；改前先 SELECT 预览'],
+ ['DML','用 = NULL 找空值；把显式 NULL 当默认值','IS NULL；省略列或 DEFAULT 才触发默认值'],
+ ['DML','LIKE \'%经理%\' 以为只匹配「经理」','它会连「总经理」一起命中'],
+ ['查询','LEFT JOIN 后右表条件写进 WHERE','外连接退化成内连接，条件放 ON'],
+ ['查询','WHERE 里写聚合函数；GROUP BY 漏列','聚合改 HAVING；非聚合列进 GROUP BY'],
+ ['查询','自连接没起两个别名；任务 12 忘排除本人','w / m 两份实例；加 w.Wname <> \'李海明\''],
+ ['查询','NOT IN 集合含 NULL；> ALL 空集语义','改 NOT EXISTS；空集时 > ALL 为真、> MAX 为 NULL']
+];
+$('#errBox').innerHTML=errs.map(e=>'<div class="card" style="border-left:3px solid var(--rd)"><div style="font-size:11px;color:var(--rd);letter-spacing:1px">'+e[0]+' · 易踩</div><div style="margin:6px 0;font-size:13.5px">❌ '+e[1]+'</div><div style="font-size:13px;color:var(--gr)">✅ '+e[2]+'</div></div>').join('');
+
+/* ================= 10 checklist ================= */
+const checks=[
+ '手画 E-R 图：4 矩形、3 菱形、属性椭圆、主键下划线、连线标 1/n/m',
+ '写出 5 个关系模式，逐个标 PK / FK，口述「1:n 落 n 端、m:n 独立成表」',
+ '重算图 2-12 六题，手工列出自然连接 7 行与除法 2 行',
+ '照脚本敲完整建库语句，用 SHOW CREATE TABLE 核对字段类型与约束',
+ '灌入图 4-9 全部数据，逐表 SELECT COUNT(*) 核对行数',
+ '在 Workercopy 上跑完项目 4 的 14 个更新任务',
+ '完成项目 5 的 14 个查询，重点攻任务 9 / 10 / 11 / 13 / 14',
+ '用讨论题速答表自测，再用排错清单逐条检查自己的脚本'
+];
+$('#chkBox').innerHTML=checks.map((c,i)=>'<div class="chk" data-i="'+i+'"><span class="box">✓</span><span>'+c+'</span></div>').join('');
+let saved=JSON.parse(localStorage.getItem('yggl_chk')||'[]');
+function renderChk(){
+  $$('.chk').forEach(el=>el.classList.toggle('done',saved.includes(+el.dataset.i)));
+  $('#chkPct').textContent=saved.length+' / 8';
+  $('#chkBar').style.width=(saved.length/8*100)+'%';
+}
+$$('.chk').forEach(el=>el.onclick=()=>{
+  const i=+el.dataset.i;saved=saved.includes(i)?saved.filter(x=>x!==i):[...saved,i];
+  localStorage.setItem('yggl_chk',JSON.stringify(saved));renderChk();
+});
+renderChk();
+
+const bones=[
+ ['m:n 联系转表','项目 2 任务 4','能解释为什么销售表主键必须是 (员工编号, 商品编号)'],
+ ['除法 / 全部语义','图 2 第 6 题 · 任务 13','能把 R÷S 与双重 NOT EXISTS 互相翻译'],
+ ['LEFT JOIN 保行','任务 9、11','能说清哪张表是「必须全部保留」的左表'],
+ ['自连接','任务 10','能说清 w 与 m 两个别名各自代表什么角色'],
+ ['NULL 三值逻辑','项目 4 任务 12 · 任务 4','能解释为什么 = NULL 查不出任何行'],
+ ['UPDATE 的 WHERE','项目 4 任务 9–12','能判断什么时候该全表改、什么时候必须带条件']
+];
+$('#boneBox').innerHTML=bones.map(b=>'<div class="card"><span class="tag or">'+b[1]+'</span><h4>'+b[0]+'</h4><div class="mini">✓ 掌握标准：'+b[2]+'</div></div>').join('');
+
+/* 初始化所有静态代码块 */
+initCode();
+</script>
+</body>
+</html>
